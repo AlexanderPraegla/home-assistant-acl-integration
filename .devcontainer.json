@@ -36,7 +36,7 @@
             }
         }
     },
-    "remoteUser": "vscode",
+    "remoteUser": "apraegla",
     "features": {
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
             "packages": [
