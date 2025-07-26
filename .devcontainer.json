@@ -37,7 +37,7 @@
             }
         }
     },
-    "remoteUser": "vscode",
+    "remoteUser": "alex",
     "features": {
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
             "packages": [
