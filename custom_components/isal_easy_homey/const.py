@@ -1,5 +1,4 @@
 """Constants for the isal Easy Homey integration."""
-from datetime import timedelta
 from typing import Final
 
 # Integration domain
