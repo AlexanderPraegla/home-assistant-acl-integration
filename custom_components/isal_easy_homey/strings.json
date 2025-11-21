@@ -1,0 +1,122 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up isal Easy Homey",
+        "description": "Configure the integration with your API",
+        "data": {
+          "api_base_url": "API Base URL",
+          "location_entity_id": "Location Entity (optional)",
+          "warning_cell_id": "Warning Cell ID",
+          "search_radius": "Search Radius (km)",
+          "petrol_type": "Petrol Type"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the API",
+      "timeout": "Timeout connecting to the API",
+      "invalid_entity": "The specified entity does not exist or has no GPS coordinates",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "This integration is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "isal Easy Homey Options",
+        "description": "Adjust the settings",
+        "data": {
+          "search_radius": "Search Radius (km)",
+          "warning_cell_id": "Warning Cell ID",
+          "petrol_type": "Petrol Type for Cheapest Station",
+          "update_interval_petrol": "Update Interval Petrol Stations (minutes)",
+          "update_interval_weather": "Update Interval Weather Warnings (minutes)",
+          "update_interval_pollen": "Update Interval Pollen Flight (minutes)",
+          "update_interval_waste": "Update Interval Waste Collection (minutes)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "nearest_station": {
+        "name": "Nearest Station"
+      },
+      "cheapest_station": {
+        "name": "Cheapest Station"
+      },
+      "current_weather_warning": {
+        "name": "Current Weather Warning"
+      },
+      "current_upfront_warning": {
+        "name": "Current Upfront Warning"
+      },
+      "all_weather_warnings_json": {
+        "name": "All Weather Warnings (JSON)"
+      },
+      "all_upfront_warnings_json": {
+        "name": "All Upfront Warnings (JSON)"
+      },
+      "highest_pollen_severity": {
+        "name": "Highest Pollen Severity"
+      },
+      "pollen_alder": {
+        "name": "Pollen Alder"
+      },
+      "pollen_ambrosia": {
+        "name": "Pollen Ambrosia"
+      },
+      "pollen_ash_tree": {
+        "name": "Pollen Ash Tree"
+      },
+      "pollen_birch": {
+        "name": "Pollen Birch"
+      },
+      "pollen_grasses": {
+        "name": "Pollen Grasses"
+      },
+      "pollen_hazel": {
+        "name": "Pollen Hazel"
+      },
+      "pollen_mugwort": {
+        "name": "Pollen Mugwort"
+      },
+      "pollen_rye": {
+        "name": "Pollen Rye"
+      },
+      "next_waste_collection": {
+        "name": "Next Waste Collection"
+      },
+      "waste_paper": {
+        "name": "Paper Waste"
+      },
+      "waste_bio": {
+        "name": "Bio Waste"
+      },
+      "waste_general": {
+        "name": "General Waste"
+      },
+      "waste_yellow_bag": {
+        "name": "Yellow Bag"
+      },
+      "waste_problem": {
+        "name": "Problem Waste"
+      }
+    },
+    "binary_sensor": {
+      "weather_warning_active": {
+        "name": "Weather Warning Active"
+      },
+      "upfront_warning_active": {
+        "name": "Upfront Warning Active"
+      },
+      "pollen_flight_active": {
+        "name": "Pollen Flight Active"
+      }
+    }
+  }
+}
+

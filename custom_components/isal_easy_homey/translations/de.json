@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "IsAl Easy Homey einrichten",
+        "description": "Konfigurieren Sie die Integration mit Ihrer API",
+        "data": {
+          "api_base_url": "API Basis URL",
+          "location_entity_id": "Standort Entity (optional)",
+          "warning_cell_id": "Warncell ID",
+          "search_radius": "Suchradius (km)",
+          "petrol_type": "Kraftstofftyp"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zur API fehlgeschlagen",
+      "timeout": "Zeitüberschreitung bei der Verbindung zur API",
+      "invalid_entity": "Die angegebene Entity existiert nicht oder hat keine GPS-Koordinaten",
+      "unknown": "Unbekannter Fehler"
+    },
+    "abort": {
+      "already_configured": "Diese Integration ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "IsAl Easy Homey Optionen",
+        "description": "Passen Sie die Einstellungen an",
+        "data": {
+          "search_radius": "Suchradius (km)",
+          "warning_cell_id": "Warncell ID",
+          "petrol_type": "Kraftstofftyp für günstigste Tankstelle",
+          "update_interval_petrol": "Update-Intervall Tankstellen (Minuten)",
+          "update_interval_weather": "Update-Intervall Unwetter (Minuten)",
+          "update_interval_pollen": "Update-Intervall Pollenflug (Minuten)",
+          "update_interval_waste": "Update-Intervall Müllabfuhr (Minuten)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "nearest_station": {
+        "name": "Nächste Tankstelle"
+      },
+      "cheapest_station": {
+        "name": "Günstigste Tankstelle"
+      },
+      "current_weather_warning": {
+        "name": "Aktuelle Unwetterwarnung"
+      },
+      "current_upfront_warning": {
+        "name": "Aktuelle Vorabwarnung"
+      },
+      "all_weather_warnings_json": {
+        "name": "Alle Unwetterwarnungen (JSON)"
+      },
+      "all_upfront_warnings_json": {
+        "name": "Alle Vorabwarnungen (JSON)"
+      },
+      "highest_pollen_severity": {
+        "name": "Höchste Pollenbelastung"
+      },
+      "pollen_alder": {
+        "name": "Pollen Erle"
+      },
+      "pollen_ambrosia": {
+        "name": "Pollen Ambrosia"
+      },
+      "pollen_ash_tree": {
+        "name": "Pollen Esche"
+      },
+      "pollen_birch": {
+        "name": "Pollen Birke"
+      },
+      "pollen_grasses": {
+        "name": "Pollen Gräser"
+      },
+      "pollen_hazel": {
+        "name": "Pollen Hasel"
+      },
+      "pollen_mugwort": {
+        "name": "Pollen Beifuß"
+      },
+      "pollen_rye": {
+        "name": "Pollen Roggen"
+      },
+      "next_waste_collection": {
+        "name": "Nächste Müllabholung"
+      },
+      "waste_paper": {
+        "name": "Papiermüll"
+      },
+      "waste_bio": {
+        "name": "Biomüll"
+      },
+      "waste_general": {
+        "name": "Restmüll"
+      },
+      "waste_yellow_bag": {
+        "name": "Gelber Sack"
+      },
+      "waste_problem": {
+        "name": "Problemmüll"
+      }
+    },
+    "binary_sensor": {
+      "weather_warning_active": {
+        "name": "Unwetterwarnung aktiv"
+      },
+      "upfront_warning_active": {
+        "name": "Vorabwarnung aktiv"
+      },
+      "pollen_flight_active": {
+        "name": "Pollenflug aktiv"
+      }
+    }
+  }
+}

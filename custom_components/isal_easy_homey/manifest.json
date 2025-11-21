@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "iot_class": "local_polling",
+  "dependencies": [],
+  "config_flow": true,
+  "codeowners": ["@apraegla"],
+  "requirements": ["aiohttp>=3.8.0"],
+  "issue_tracker": "https://github.com/apraegla/home-assistant-acl-integration/issues",
+  "documentation": "https://github.com/apraegla/home-assistant-acl-integration",
+  "name": "IsAl Easy Homey",
+  "domain": "isal_easy_homey"
+}
+
