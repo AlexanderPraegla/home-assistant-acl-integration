@@ -48,7 +48,7 @@ Eine vollständige Home Assistant Integration für die isal Easy Homey API, die 
 1. Öffnen Sie HACS in Home Assistant
 2. Gehen Sie zu "Integrationen"
 3. Klicken Sie auf die drei Punkte oben rechts und wählen Sie "Benutzerdefinierte Repositories"
-4. Fügen Sie die Repository-URL hinzu: `https://github.com/apraegla/home-assistant-acl-integration`
+4. Fügen Sie die Repository-URL hinzu: `https://github.com/AlexanderPraegla/home-assistant-acl-integration`
 5. Kategorie: "Integration"
 6. Klicken Sie auf "Hinzufügen"
 7. Suchen Sie nach "isal Easy Homey" und installieren Sie es
@@ -275,7 +275,7 @@ Wenn die Standard-Update-Intervalle zu häufig oder zu selten sind:
 
 ```bash
 # Repository klonen
-git clone https://github.com/apraegla/home-assistant-acl-integration.git
+git clone https://github.com/AlexanderPraegla/home-assistant-acl-integration.git
 cd home-assistant-acl-integration
 
 # Development Container verwenden (empfohlen)
@@ -291,11 +291,11 @@ Siehe [LICENSE](LICENSE) Datei.
 
 ## Support
 
-Bei Problemen oder Fragen erstellen Sie bitte ein Issue im [GitHub Repository](https://github.com/apraegla/home-assistant-acl-integration/issues).
+Bei Problemen oder Fragen erstellen Sie bitte ein Issue im [GitHub Repository](https://github.com/AlexanderPraegla/home-assistant-acl-integration/issues).
 
 ## Credits
 
-Entwickelt von [@apraegla](https://github.com/apraegla)
+Entwickelt von [@AlexanderPraegla](https://github.com/AlexanderPraegla)
 
 ---
 

@@ -19,7 +19,7 @@ CONF_UPDATE_INTERVAL_POLLEN: Final = "update_interval_pollen"
 CONF_UPDATE_INTERVAL_WASTE: Final = "update_interval_waste"
 
 # Default values
-DEFAULT_API_BASE_URL: Final = "http://localhost:8080/v1"
+DEFAULT_API_BASE_URL: Final = "http://192.168.178.31:8080/v1"
 DEFAULT_WARNING_CELL_ID: Final = "809177119"
 DEFAULT_SEARCH_RADIUS: Final = 15.0
 DEFAULT_PETROL_TYPE: Final = "E5"

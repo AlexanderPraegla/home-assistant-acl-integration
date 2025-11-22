@@ -43,7 +43,7 @@ Dieses Dokument beschreibt die vollständige Installation und Einrichtung der **
    - Klicken Sie auf die drei Punkte (⋮) oben rechts
    - Wählen Sie **"Benutzerdefinierte Repositories"**
    - Fügen Sie hinzu:
-     - **URL**: `https://github.com/apraegla/home-assistant-acl-integration`
+     - **URL**: `https://github.com/AlexanderPraegla/home-assistant-acl-integration`
      - **Kategorie**: `Integration`
    - Klicken Sie **"Hinzufügen"**
 
@@ -381,7 +381,7 @@ Dann:
 
 Bei weiteren Fragen oder Problemen:
 
-1. **GitHub Issues**: [Issues erstellen](https://github.com/apraegla/home-assistant-acl-integration/issues)
+1. **GitHub Issues**: [Issues erstellen](https://github.com/AlexanderPraegla/home-assistant-acl-integration/issues)
 2. **Logs überprüfen**: Immer Logs mit anhängen
 3. **Konfiguration prüfen**: Stellen Sie sicher, dass die API erreichbar ist
 
