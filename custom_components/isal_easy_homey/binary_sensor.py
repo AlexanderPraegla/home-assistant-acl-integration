@@ -7,7 +7,6 @@ import logging
 from typing import Any
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
@@ -41,7 +40,6 @@ WEATHER_WARNING_BINARY_SENSORS: tuple[IsalEasyHomeyBinarySensorEntityDescription
     IsalEasyHomeyBinarySensorEntityDescription(
         key="weather_warning_active",
         translation_key="weather_warning_active",
-        device_class=BinarySensorDeviceClass.SAFETY,
         value_fn=lambda data: data.get("warnings", {}).get("count", 0) > 0,
         attributes_fn=lambda data: {
             "count": data.get("warnings", {}).get("count", 0),
@@ -52,7 +50,6 @@ WEATHER_WARNING_BINARY_SENSORS: tuple[IsalEasyHomeyBinarySensorEntityDescription
     IsalEasyHomeyBinarySensorEntityDescription(
         key="upfront_warning_active",
         translation_key="upfront_warning_active",
-        device_class=BinarySensorDeviceClass.SAFETY,
         value_fn=lambda data: data.get("upfront", {}).get("count", 0) > 0,
         attributes_fn=lambda data: {
             "count": data.get("upfront", {}).get("count", 0),
