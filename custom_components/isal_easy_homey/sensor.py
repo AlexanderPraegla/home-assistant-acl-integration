@@ -1066,7 +1066,6 @@ class IsalEasyHomeyCheapestStationSensor(
     _attr_icon = "mdi:currency-eur"
     _attr_native_unit_of_measurement = "EUR"
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
