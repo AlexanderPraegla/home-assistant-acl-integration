@@ -79,7 +79,7 @@
   "entity": {
     "sensor": {
       "nearest_station": {
-        "name": "Nearest Station"
+        "name": "Home Station"
       },
       "cheapest_station_e5": {
         "name": "Cheapest Station Super E5"

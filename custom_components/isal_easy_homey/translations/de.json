@@ -79,7 +79,7 @@
   "entity": {
     "sensor": {
       "nearest_station": {
-        "name": "Nächste Tankstelle"
+        "name": "Heimat Tankstelle"
       },
       "cheapest_station_e5": {
         "name": "Günstigste Tankstelle Super E5"
