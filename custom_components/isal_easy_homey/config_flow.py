@@ -24,6 +24,7 @@ from .const import (
     CONF_LOCATION_ENTITY_ID_CHEAPEST,
     CONF_LOCATION_ENTITY_ID_NEAREST,
     CONF_USER_LOCATIONS,
+    CONF_STATION_IDS,
     CONF_PETROL_TYPE,
     CONF_SEARCH_RADIUS,
     CONF_UPDATE_INTERVAL_PETROL,
@@ -212,6 +213,9 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
         self._user_locations = list(
             config_entry.options.get(CONF_USER_LOCATIONS, [])
         )
+        self._station_ids = list(
+            config_entry.options.get(CONF_STATION_IDS, [])
+        )
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -227,7 +231,7 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
         """
         return self.async_show_menu(
             step_id="init",
-            menu_options=["general_settings", "user_locations"],
+            menu_options=["general_settings", "user_locations", "station_ids"],
         )
 
     async def async_step_general_settings(
@@ -243,8 +247,9 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
 
         """
         if user_input is not None:
-            # Merge with existing user_locations
+            # Merge with existing user_locations and station_ids
             user_input[CONF_USER_LOCATIONS] = self._user_locations
+            user_input[CONF_STATION_IDS] = self._station_ids
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(
@@ -418,16 +423,18 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
 
         """
         if user_input is not None:
-            location_name = user_input.get("location")
-            # Remove from list
+            location_to_remove = user_input.get("location")
             self._user_locations = [
-                loc for loc in self._user_locations if loc.get("name") != location_name
+                loc
+                for loc in self._user_locations
+                if loc.get("name") != location_to_remove
             ]
             return await self.async_step_user_locations()
 
-        # Create selection dict
+        # Build selection list
         location_options = {
-            loc.get("name"): loc.get("name") for loc in self._user_locations
+            loc.get("name"): f"{loc.get('name')} ({loc.get('entity_id')})"
+            for loc in self._user_locations
         }
 
         return self.async_show_form(
@@ -438,3 +445,131 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                 }
             ),
         )
+
+    async def async_step_station_ids(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage station IDs.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        if user_input is not None:
+            action = user_input.get("action")
+            if action == "add":
+                return await self.async_step_add_station_id()
+            elif action == "remove" and self._station_ids:
+                return await self.async_step_remove_station_id()
+            elif action == "done":
+                # Save and return
+                options = dict(self.config_entry.options)
+                options[CONF_STATION_IDS] = self._station_ids
+                options[CONF_USER_LOCATIONS] = self._user_locations
+                return self.async_create_entry(title="", data=options)
+
+        # Show current station IDs
+        stations_info = "\n".join(
+            [f"- {station_id}" for station_id in self._station_ids]
+        ) if self._station_ids else "Keine Tankstellen-IDs konfiguriert"
+
+        return self.async_show_form(
+            step_id="station_ids",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("action", default="done"): vol.In(
+                        {
+                            "add": "Neue Tankstellen-ID hinzufügen",
+                            "remove": "Tankstellen-ID entfernen",
+                            "done": "Fertig",
+                        }
+                    ),
+                }
+            ),
+            description_placeholders={"stations": stations_info},
+        )
+
+    async def async_step_add_station_id(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Add a new station ID.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            station_id = user_input.get("station_id", "").strip()
+
+            # Validate station ID
+            if not station_id:
+                errors["station_id"] = "invalid_station_id"
+            elif station_id in self._station_ids:
+                errors["station_id"] = "station_id_exists"
+            else:
+                # Try to fetch the station to validate it exists
+                try:
+                    session = async_get_clientsession(self.hass)
+                    api_base_url = self.config_entry.options.get(
+                        CONF_API_BASE_URL,
+                        self.config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+                    )
+                    client = IsalEasyHomeyApiClient(api_base_url, session)
+                    await client.get_petrol_station(station_id)
+
+                    # Add to list if validation succeeded
+                    self._station_ids.append(station_id)
+                    return await self.async_step_station_ids()
+
+                except IsalEasyHomeyApiError:
+                    errors["station_id"] = "invalid_station_id"
+
+        return self.async_show_form(
+            step_id="add_station_id",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("station_id"): str,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_remove_station_id(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Remove a station ID.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        if user_input is not None:
+            station_to_remove = user_input.get("station_id")
+            self._station_ids = [
+                sid for sid in self._station_ids if sid != station_to_remove
+            ]
+            return await self.async_step_station_ids()
+
+        # Build selection list
+        station_options = {sid: sid for sid in self._station_ids}
+
+        return self.async_show_form(
+            step_id="remove_station_id",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("station_id"): vol.In(station_options),
+                }
+            ),
+        )
+

@@ -30,7 +30,8 @@
         "description": "Select an option",
         "menu_options": {
           "general_settings": "General Settings",
-          "user_locations": "User Locations"
+          "user_locations": "User Locations",
+          "station_ids": "Station IDs"
         }
       },
       "general_settings": {
@@ -73,8 +74,39 @@
         "data": {
           "location": "Location"
         }
+      },
+      "station_ids": {
+        "title": "Manage Station IDs",
+        "description": "Current station IDs:\n\n{stations}",
+        "data": {
+          "action": "Action"
+        },
+        "data_description": {
+          "action": "Choose an action"
+        }
+      },
+      "add_station_id": {
+        "title": "Add New Station ID",
+        "description": "Add a station ID to create a dedicated sensor",
+        "data": {
+          "station_id": "Station ID"
+        },
+        "data_description": {
+          "station_id": "Enter the unique ID of the gas station"
+        }
+      },
+      "remove_station_id": {
+        "title": "Remove Station ID",
+        "description": "Select the station ID to remove",
+        "data": {
+          "station_id": "Station ID"
+        }
       }
     }
+  },
+  "error": {
+    "invalid_station_id": "Invalid station ID or station not found",
+    "station_id_exists": "This station ID has already been added"
   },
   "entity": {
     "sensor": {

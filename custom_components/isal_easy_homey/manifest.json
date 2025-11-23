@@ -1,7 +1,7 @@
 {
   "domain": "isal_easy_homey",
   "name": "IsAl Easy Homey",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "documentation": "https://github.com/AlexanderPraegla/home-assistant-acl-integration",
   "issue_tracker": "https://github.com/AlexanderPraegla/home-assistant-acl-integration/issues",
   "requirements": ["aiohttp>=3.8.0"],

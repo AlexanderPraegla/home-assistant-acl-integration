@@ -479,6 +479,17 @@ async def async_setup_entry(
                     )
                 )
 
+    # Add sensors for specific station IDs
+    if petrol_coordinator.station_ids:
+        for station_id in petrol_coordinator.station_ids:
+            entities.append(
+                IsalEasyHomeyStationIdSensor(
+                    petrol_coordinator,
+                    entry,
+                    station_id,
+                )
+            )
+
     # Add weather warning sensors
     weather_coordinator = coordinators[COORDINATOR_WEATHER]
     entities.extend(
@@ -1253,3 +1264,135 @@ class IsalEasyHomeyUserNearestStationSensor(
         """
         return super().available and bool(self._get_station_data())
 
+
+class IsalEasyHomeyStationIdSensor(
+    CoordinatorEntity[PetrolStationCoordinator], SensorEntity
+):
+    """Sensor for a specific petrol station by ID."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:gas-station"
+
+    def __init__(
+        self,
+        coordinator: PetrolStationCoordinator,
+        entry: ConfigEntry,
+        station_id: str,
+    ) -> None:
+        """Initialize the sensor.
+
+        Args:
+            coordinator: The data coordinator
+            entry: The config entry
+            station_id: The station ID
+
+        """
+        super().__init__(coordinator)
+        self._station_id = station_id
+        # Create a safe unique_id from station_id
+        safe_station_id = station_id.replace("-", "_")
+        self._attr_unique_id = f"{entry.entry_id}_station_{safe_station_id}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": "isal Easy Homey",
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    def _get_station_data(self) -> dict[str, Any] | None:
+        """Get station data for this station ID.
+
+        Returns:
+            Station data dictionary or None
+
+        """
+        stations_by_id = self.coordinator.data.get("stations_by_id", {})
+        return stations_by_id.get(self._station_id)
+
+    @property
+    def name(self) -> str | None:
+        """Return the name of the sensor.
+
+        Returns:
+            The station name
+
+        """
+        station_data = self._get_station_data()
+        if station_data:
+            return station_data.get("name", self._station_id)
+        return self._station_id
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state of the sensor.
+
+        Returns:
+            The station status
+
+        """
+        station_data = self._get_station_data()
+        if station_data:
+            return station_data.get("statusTranslation", station_data.get("status"))
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the state attributes.
+
+        Returns:
+            Dictionary of attributes
+
+        """
+        station_data = self._get_station_data()
+        if not station_data:
+            return {"station_id": self._station_id}
+
+        return {
+            "station_id": station_data.get("stationId"),
+            "name": station_data.get("name"),
+            "brand": station_data.get("brand"),
+            "address": format_address(station_data.get("address", {})),
+            "location": station_data.get("location"),
+            "status": station_data.get("status"),
+            "status_translation": station_data.get("statusTranslation"),
+            "e5_price": get_price_from_prices(
+                station_data.get("prices", []), "E5"
+            ),
+            "e10_price": get_price_from_prices(
+                station_data.get("prices", []), "E10"
+            ),
+            "diesel_price": get_price_from_prices(
+                station_data.get("prices", []), "DIESEL"
+            ),
+            "all_day_opened": station_data.get("openingHours", {}).get("allDayOpened"),
+            "opening_hours": station_data.get("openingHours", {}).get("openingHours"),
+        }
+
+    @property
+    def icon(self) -> str:
+        """Return the icon.
+
+        Returns:
+            Icon string based on status
+
+        """
+        station_data = self._get_station_data()
+        if station_data:
+            status = station_data.get("status")
+            if status == "OPEN":
+                return "mdi:gas-station"
+            elif status == "CLOSED":
+                return "mdi:gas-station-off"
+            elif status == "NO_PRICES":
+                return "mdi:gas-station-outline"
+        return "mdi:gas-station"
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available.
+
+        Returns:
+            True if available
+
+        """
+        return super().available and bool(self._get_station_data())

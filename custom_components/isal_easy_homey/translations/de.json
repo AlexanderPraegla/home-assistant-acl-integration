@@ -30,7 +30,8 @@
         "description": "Wählen Sie eine Option aus",
         "menu_options": {
           "general_settings": "Allgemeine Einstellungen",
-          "user_locations": "Benutzer-Standorte"
+          "user_locations": "Benutzer-Standorte",
+          "station_ids": "Tankstellen-IDs"
         }
       },
       "general_settings": {
@@ -73,8 +74,39 @@
         "data": {
           "location": "Standort"
         }
+      },
+      "station_ids": {
+        "title": "Tankstellen-IDs verwalten",
+        "description": "Aktuelle Tankstellen-IDs:\n\n{stations}",
+        "data": {
+          "action": "Aktion"
+        },
+        "data_description": {
+          "action": "Wählen Sie eine Aktion aus"
+        }
+      },
+      "add_station_id": {
+        "title": "Neue Tankstellen-ID hinzufügen",
+        "description": "Fügen Sie eine Tankstellen-ID hinzu, um einen dedizierten Sensor zu erstellen",
+        "data": {
+          "station_id": "Tankstellen-ID"
+        },
+        "data_description": {
+          "station_id": "Geben Sie die eindeutige ID der Tankstelle ein"
+        }
+      },
+      "remove_station_id": {
+        "title": "Tankstellen-ID entfernen",
+        "description": "Wählen Sie die zu entfernende Tankstellen-ID aus",
+        "data": {
+          "station_id": "Tankstellen-ID"
+        }
       }
     }
+  },
+  "error": {
+    "invalid_station_id": "Ungültige Tankstellen-ID oder Tankstelle nicht gefunden",
+    "station_id_exists": "Diese Tankstellen-ID wurde bereits hinzugefügt"
   },
   "entity": {
     "sensor": {

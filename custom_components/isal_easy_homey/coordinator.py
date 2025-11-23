@@ -55,6 +55,7 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         location_entity_id_cheapest: str | None,
         location_entity_id_nearest: str | None,
         user_locations: list[dict[str, Any]] | None,
+        station_ids: list[str] | None,
         search_radius: float,
         update_interval: timedelta,
         config_entry,
@@ -67,6 +68,7 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             location_entity_id_cheapest: Entity ID for cheapest station location
             location_entity_id_nearest: Entity ID for nearest station location
             user_locations: List of user locations with name and entity_id
+            station_ids: List of station IDs to track
             search_radius: Search radius in km
             update_interval: Update interval
             config_entry: The config entry
@@ -83,6 +85,7 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.location_entity_id_cheapest = location_entity_id_cheapest
         self.location_entity_id_nearest = location_entity_id_nearest
         self.user_locations = user_locations or []
+        self.station_ids = station_ids or []
         self.search_radius = search_radius
 
     async def _async_update_data(self) -> dict[str, Any]:
@@ -158,6 +161,17 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         user_nearest_stations[user_name] = nearest
 
             data["user_nearest_stations"] = user_nearest_stations
+
+            # Get data for specific station IDs
+            stations_by_id = {}
+            for station_id in self.station_ids:
+                try:
+                    station_data = await self.client.get_petrol_station(station_id)
+                    stations_by_id[station_id] = station_data
+                except IsalEasyHomeyApiError as err:
+                    _LOGGER.warning("Failed to fetch data for station %s: %s", station_id, err)
+
+            data["stations_by_id"] = stations_by_id
 
             return data
 
