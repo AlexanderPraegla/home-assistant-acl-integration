@@ -6,10 +6,10 @@
         "description": "Configure the integration with your API",
         "data": {
           "api_base_url": "API Base URL",
-          "location_entity_id": "Location Entity (optional)",
+          "location_entity_id_cheapest": "Location Entity for Cheapest Station (optional)",
+          "location_entity_id_nearest": "Location Entity for Nearest Station (optional)",
           "warning_cell_id": "Warning Cell ID",
-          "search_radius": "Search Radius (km)",
-          "petrol_type": "Petrol Type"
+          "search_radius": "Search Radius (km)"
         }
       }
     },
@@ -26,16 +26,52 @@
   "options": {
     "step": {
       "init": {
-        "title": "isal Easy Homey Options",
-        "description": "Adjust the settings",
+        "title": "ISAL Easy Homey Options",
+        "description": "Select an option",
+        "menu_options": {
+          "general_settings": "General Settings",
+          "user_locations": "User Locations"
+        }
+      },
+      "general_settings": {
+        "title": "General Settings",
+        "description": "Adjust the integration settings",
         "data": {
           "search_radius": "Search Radius (km)",
           "warning_cell_id": "Warning Cell ID",
-          "petrol_type": "Petrol Type for Cheapest Station",
           "update_interval_petrol": "Update Interval Petrol Stations (minutes)",
           "update_interval_weather": "Update Interval Weather Warnings (minutes)",
           "update_interval_pollen": "Update Interval Pollen Flight (minutes)",
           "update_interval_waste": "Update Interval Waste Collection (minutes)"
+        }
+      },
+      "user_locations": {
+        "title": "Manage User Locations",
+        "description": "Current locations:\n\n{locations}",
+        "data": {
+          "action": "Action"
+        },
+        "data_description": {
+          "action": "Choose an action"
+        }
+      },
+      "add_user_location": {
+        "title": "Add New User Location",
+        "description": "Add a new location for personalized gas station sensors",
+        "data": {
+          "name": "User Name",
+          "entity_id": "Location Entity"
+        },
+        "data_description": {
+          "name": "A unique name for this location (e.g. Dad, Mom, Work)",
+          "entity_id": "Select an entity with GPS coordinates (Person, Device Tracker or Zone)"
+        }
+      },
+      "remove_user_location": {
+        "title": "Remove User Location",
+        "description": "Select the location to remove",
+        "data": {
+          "location": "Location"
         }
       }
     }
@@ -45,8 +81,14 @@
       "nearest_station": {
         "name": "Nearest Station"
       },
-      "cheapest_station": {
-        "name": "Cheapest Station"
+      "cheapest_station_e5": {
+        "name": "Cheapest Station Super E5"
+      },
+      "cheapest_station_e10": {
+        "name": "Cheapest Station Super E10"
+      },
+      "cheapest_station_diesel": {
+        "name": "Cheapest Station Diesel"
       },
       "current_weather_warning": {
         "name": "Current Weather Warning"

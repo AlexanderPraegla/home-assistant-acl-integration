@@ -52,20 +52,24 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self,
         hass: HomeAssistant,
         client: IsalEasyHomeyApiClient,
-        location_entity_id: str | None,
+        location_entity_id_cheapest: str | None,
+        location_entity_id_nearest: str | None,
+        user_locations: list[dict[str, Any]] | None,
         search_radius: float,
-        petrol_type: str,
         update_interval: timedelta,
+        config_entry,
     ) -> None:
         """Initialize the coordinator.
 
         Args:
             hass: The Home Assistant instance
             client: The API client
-            location_entity_id: Entity ID to get coordinates from
+            location_entity_id_cheapest: Entity ID for cheapest station location
+            location_entity_id_nearest: Entity ID for nearest station location
+            user_locations: List of user locations with name and entity_id
             search_radius: Search radius in km
-            petrol_type: Petrol type for cheapest station
             update_interval: Update interval
+            config_entry: The config entry
 
         """
         super().__init__(
@@ -73,11 +77,13 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER,
             name=f"{DOMAIN}_petrol_station",
             update_interval=update_interval,
+            config_entry=config_entry,
         )
         self.client = client
-        self.location_entity_id = location_entity_id
+        self.location_entity_id_cheapest = location_entity_id_cheapest
+        self.location_entity_id_nearest = location_entity_id_nearest
+        self.user_locations = user_locations or []
         self.search_radius = search_radius
-        self.petrol_type = petrol_type
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API.
@@ -92,30 +98,66 @@ class PetrolStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             data: dict[str, Any] = {}
 
-            # Get coordinates if entity is configured
-            coordinates = get_coordinates_from_entity(self.hass, self.location_entity_id)
+            # Get cheapest stations for all fuel types
+            coordinates_cheapest = get_coordinates_from_entity(
+                self.hass, self.location_entity_id_cheapest
+            )
+            if coordinates_cheapest:
+                latitude, longitude = coordinates_cheapest
 
-            if coordinates:
-                latitude, longitude = coordinates
+                # Get cheapest stations for each fuel type
+                cheapest_stations = {}
+                for fuel_type in ["E5", "E10", "DIESEL"]:
+                    cheapest = await self.client.get_cheapest_petrol_station(
+                        latitude, longitude, self.search_radius, fuel_type
+                    )
+                    cheapest_stations[fuel_type] = cheapest
 
-                # Get all stations in radius
+                data["cheapest_stations"] = cheapest_stations
+
+            # Get nearest station based on location_entity_id_nearest
+            coordinates_nearest = get_coordinates_from_entity(
+                self.hass, self.location_entity_id_nearest
+            )
+            if coordinates_nearest:
+                latitude, longitude = coordinates_nearest
+
                 stations = await self.client.search_petrol_stations(
                     latitude, longitude, self.search_radius
                 )
-                data["all_stations"] = stations
 
-                # Get nearest station
                 if stations:
                     nearest = min(
-                        stations, key=lambda x: x.get("location", {}).get("distance", float("inf"))
+                        stations,
+                        key=lambda x: x.get("location", {}).get("distance", float("inf"))
                     )
                     data["nearest_station"] = nearest
 
-                # Get cheapest station
-                cheapest = await self.client.get_cheapest_petrol_station(
-                    latitude, longitude, self.search_radius, self.petrol_type
-                )
-                data["cheapest_station"] = cheapest
+            # Get nearest stations for each user location
+            user_nearest_stations = {}
+            for user_loc in self.user_locations:
+                user_name = user_loc.get("name")
+                entity_id = user_loc.get("entity_id")
+
+                if not user_name or not entity_id:
+                    continue
+
+                coordinates = get_coordinates_from_entity(self.hass, entity_id)
+                if coordinates:
+                    latitude, longitude = coordinates
+
+                    stations = await self.client.search_petrol_stations(
+                        latitude, longitude, self.search_radius
+                    )
+
+                    if stations:
+                        nearest = min(
+                            stations,
+                            key=lambda x: x.get("location", {}).get("distance", float("inf"))
+                        )
+                        user_nearest_stations[user_name] = nearest
+
+            data["user_nearest_stations"] = user_nearest_stations
 
             return data
 
@@ -132,6 +174,7 @@ class WeatherWarningCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         client: IsalEasyHomeyApiClient,
         warning_cell_id: str,
         update_interval: timedelta,
+        config_entry,
     ) -> None:
         """Initialize the coordinator.
 
@@ -140,6 +183,7 @@ class WeatherWarningCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             client: The API client
             warning_cell_id: Warning cell ID
             update_interval: Update interval
+            config_entry: The config entry
 
         """
         super().__init__(
@@ -147,6 +191,7 @@ class WeatherWarningCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER,
             name=f"{DOMAIN}_weather_warning",
             update_interval=update_interval,
+            config_entry=config_entry,
         )
         self.client = client
         self.warning_cell_id = warning_cell_id
@@ -189,6 +234,7 @@ class PollenFlightCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         hass: HomeAssistant,
         client: IsalEasyHomeyApiClient,
         update_interval: timedelta,
+        config_entry,
     ) -> None:
         """Initialize the coordinator.
 
@@ -196,6 +242,7 @@ class PollenFlightCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             hass: The Home Assistant instance
             client: The API client
             update_interval: Update interval
+            config_entry: The config entry
 
         """
         super().__init__(
@@ -203,6 +250,7 @@ class PollenFlightCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER,
             name=f"{DOMAIN}_pollen_flight",
             update_interval=update_interval,
+            config_entry=config_entry,
         )
         self.client = client
 
@@ -240,6 +288,7 @@ class WasteCollectionCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         hass: HomeAssistant,
         client: IsalEasyHomeyApiClient,
         update_interval: timedelta,
+        config_entry,
     ) -> None:
         """Initialize the coordinator.
 
@@ -247,6 +296,7 @@ class WasteCollectionCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             hass: The Home Assistant instance
             client: The API client
             update_interval: Update interval
+            config_entry: The config entry
 
         """
         super().__init__(
@@ -254,6 +304,7 @@ class WasteCollectionCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER,
             name=f"{DOMAIN}_waste_collection",
             update_interval=update_interval,
+            config_entry=config_entry,
         )
         self.client = client
 

@@ -21,6 +21,9 @@ from .api import (
 from .const import (
     CONF_API_BASE_URL,
     CONF_LOCATION_ENTITY_ID,
+    CONF_LOCATION_ENTITY_ID_CHEAPEST,
+    CONF_LOCATION_ENTITY_ID_NEAREST,
+    CONF_USER_LOCATIONS,
     CONF_PETROL_TYPE,
     CONF_SEARCH_RADIUS,
     CONF_UPDATE_INTERVAL_PETROL,
@@ -65,7 +68,35 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # Test the connection
     await client.test_connection()
 
-    # Validate that the location entity exists if provided
+    # Validate location entity for cheapest station
+    if CONF_LOCATION_ENTITY_ID_CHEAPEST in data and data[CONF_LOCATION_ENTITY_ID_CHEAPEST]:
+        state = hass.states.get(data[CONF_LOCATION_ENTITY_ID_CHEAPEST])
+        if state is None:
+            raise ValueError(f"Entity {data[CONF_LOCATION_ENTITY_ID_CHEAPEST]} not found")
+
+        # Check if entity has location attributes
+        if not (
+            state.attributes.get("latitude") and state.attributes.get("longitude")
+        ):
+            raise ValueError(
+                f"Entity {data[CONF_LOCATION_ENTITY_ID_CHEAPEST]} does not have location attributes"
+            )
+
+    # Validate location entity for nearest station
+    if CONF_LOCATION_ENTITY_ID_NEAREST in data and data[CONF_LOCATION_ENTITY_ID_NEAREST]:
+        state = hass.states.get(data[CONF_LOCATION_ENTITY_ID_NEAREST])
+        if state is None:
+            raise ValueError(f"Entity {data[CONF_LOCATION_ENTITY_ID_NEAREST]} not found")
+
+        # Check if entity has location attributes
+        if not (
+            state.attributes.get("latitude") and state.attributes.get("longitude")
+        ):
+            raise ValueError(
+                f"Entity {data[CONF_LOCATION_ENTITY_ID_NEAREST]} does not have location attributes"
+            )
+
+    # Validate old location entity if provided (backwards compatibility)
     if CONF_LOCATION_ENTITY_ID in data and data[CONF_LOCATION_ENTITY_ID]:
         state = hass.states.get(data[CONF_LOCATION_ENTITY_ID])
         if state is None:
@@ -126,7 +157,12 @@ class IsalEasyHomeyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_API_BASE_URL, default=DEFAULT_API_BASE_URL
                     ): str,
-                    vol.Optional(CONF_LOCATION_ENTITY_ID): selector.EntitySelector(
+                    vol.Optional(CONF_LOCATION_ENTITY_ID_CHEAPEST): selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain=["device_tracker", "person", "zone"]
+                        )
+                    ),
+                    vol.Optional(CONF_LOCATION_ENTITY_ID_NEAREST): selector.EntitySelector(
                         selector.EntitySelectorConfig(
                             domain=["device_tracker", "person", "zone"]
                         )
@@ -139,9 +175,6 @@ class IsalEasyHomeyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ): vol.All(
                         vol.Coerce(float),
                         vol.Range(min=MIN_SEARCH_RADIUS, max=MAX_SEARCH_RADIUS),
-                    ),
-                    vol.Optional(CONF_PETROL_TYPE, default=DEFAULT_PETROL_TYPE): vol.In(
-                        PETROL_TYPES
                     ),
                 }
             ),
@@ -176,6 +209,9 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
 
         """
         self.config_entry = config_entry
+        self._user_locations = list(
+            config_entry.options.get(CONF_USER_LOCATIONS, [])
+        )
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -189,11 +225,30 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             The flow result
 
         """
+        return self.async_show_menu(
+            step_id="init",
+            menu_options=["general_settings", "user_locations"],
+        )
+
+    async def async_step_general_settings(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage general settings.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
         if user_input is not None:
+            # Merge with existing user_locations
+            user_input[CONF_USER_LOCATIONS] = self._user_locations
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(
-            step_id="init",
+            step_id="general_settings",
             data_schema=vol.Schema(
                 {
                     vol.Optional(
@@ -217,15 +272,6 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                             ),
                         ),
                     ): str,
-                    vol.Optional(
-                        CONF_PETROL_TYPE,
-                        default=self.config_entry.options.get(
-                            CONF_PETROL_TYPE,
-                            self.config_entry.data.get(
-                                CONF_PETROL_TYPE, DEFAULT_PETROL_TYPE
-                            ),
-                        ),
-                    ): vol.In(PETROL_TYPES),
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_PETROL,
                         default=self.config_entry.options.get(
@@ -258,3 +304,137 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             ),
         )
 
+    async def async_step_user_locations(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage user locations.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        if user_input is not None:
+            action = user_input.get("action")
+            if action == "add":
+                return await self.async_step_add_user_location()
+            elif action == "remove" and self._user_locations:
+                return await self.async_step_remove_user_location()
+            elif action == "done":
+                # Save and return
+                options = dict(self.config_entry.options)
+                options[CONF_USER_LOCATIONS] = self._user_locations
+                return self.async_create_entry(title="", data=options)
+
+        # Show current user locations
+        locations_info = "\n".join(
+            [
+                f"- {loc.get('name')}: {loc.get('entity_id')}"
+                for loc in self._user_locations
+            ]
+        ) if self._user_locations else "Keine Benutzer-Standorte konfiguriert"
+
+        return self.async_show_form(
+            step_id="user_locations",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("action", default="done"): vol.In(
+                        {
+                            "add": "Neuen Standort hinzufügen",
+                            "remove": "Standort entfernen",
+                            "done": "Fertig",
+                        }
+                    ),
+                }
+            ),
+            description_placeholders={"locations": locations_info},
+        )
+
+    async def async_step_add_user_location(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Add a new user location.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            name = user_input.get("name")
+            entity_id = user_input.get("entity_id")
+
+            # Validate entity exists
+            if entity_id:
+                state = self.hass.states.get(entity_id)
+                if state is None:
+                    errors["entity_id"] = "invalid_entity"
+                elif not (
+                    state.attributes.get("latitude") and state.attributes.get("longitude")
+                ):
+                    errors["entity_id"] = "invalid_entity"
+
+            if not errors:
+                # Add to list
+                self._user_locations.append(
+                    {
+                        "name": name,
+                        "entity_id": entity_id,
+                    }
+                )
+                return await self.async_step_user_locations()
+
+        return self.async_show_form(
+            step_id="add_user_location",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("name"): str,
+                    vol.Required("entity_id"): selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain=["device_tracker", "person", "zone"]
+                        )
+                    ),
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_remove_user_location(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Remove a user location.
+
+        Args:
+            user_input: The user input data
+
+        Returns:
+            The flow result
+
+        """
+        if user_input is not None:
+            location_name = user_input.get("location")
+            # Remove from list
+            self._user_locations = [
+                loc for loc in self._user_locations if loc.get("name") != location_name
+            ]
+            return await self.async_step_user_locations()
+
+        # Create selection dict
+        location_options = {
+            loc.get("name"): loc.get("name") for loc in self._user_locations
+        }
+
+        return self.async_show_form(
+            step_id="remove_user_location",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("location"): vol.In(location_options),
+                }
+            ),
+        )

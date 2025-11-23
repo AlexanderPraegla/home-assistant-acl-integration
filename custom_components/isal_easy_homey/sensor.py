@@ -121,40 +121,6 @@ PETROL_STATION_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         },
         available_fn=lambda data: "nearest_station" in data and data["nearest_station"],
     ),
-    IsalEasyHomeySensorEntityDescription(
-        key="cheapest_station",
-        translation_key="cheapest_station",
-        icon="mdi:currency-eur",
-        native_unit_of_measurement="EUR",
-        device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: get_price_from_prices(
-            data.get("cheapest_station", {}).get("prices", []), "E5"
-        ),
-        attributes_fn=lambda data: {
-            "station_id": data.get("cheapest_station", {}).get("stationId"),
-            "name": data.get("cheapest_station", {}).get("name"),
-            "brand": data.get("cheapest_station", {}).get("brand"),
-            "address": format_address(
-                data.get("cheapest_station", {}).get("address", {})
-            ),
-            "location": data.get("cheapest_station", {}).get("location"),
-            "status": data.get("cheapest_station", {}).get("status"),
-            "e5_price": get_price_from_prices(
-                data.get("cheapest_station", {}).get("prices", []), "E5"
-            ),
-            "e10_price": get_price_from_prices(
-                data.get("cheapest_station", {}).get("prices", []), "E10"
-            ),
-            "diesel_price": get_price_from_prices(
-                data.get("cheapest_station", {}).get("prices", []), "DIESEL"
-            ),
-            "distance": data.get("cheapest_station", {})
-            .get("location", {})
-            .get("distance"),
-        },
-        available_fn=lambda data: "cheapest_station" in data and data["cheapest_station"],
-    ),
 )
 
 
@@ -489,6 +455,29 @@ async def async_setup_entry(
         )
         for description in PETROL_STATION_SENSORS
     )
+
+    # Add cheapest station sensors for each fuel type (E5, E10, DIESEL)
+    for fuel_type in ["E5", "E10", "DIESEL"]:
+        entities.append(
+            IsalEasyHomeyCheapestStationSensor(
+                petrol_coordinator,
+                entry,
+                fuel_type,
+            )
+        )
+
+    # Add nearest station sensors for each user location
+    if petrol_coordinator.user_locations:
+        for user_loc in petrol_coordinator.user_locations:
+            user_name = user_loc.get("name")
+            if user_name:
+                entities.append(
+                    IsalEasyHomeyUserNearestStationSensor(
+                        petrol_coordinator,
+                        entry,
+                        user_name,
+                    )
+                )
 
     # Add weather warning sensors
     weather_coordinator = coordinators[COORDINATOR_WEATHER]
@@ -1055,4 +1044,212 @@ class IsalEasyHomeyWasteSensor(
 
         """
         return super().available and bool(self._get_waste_data())
+
+
+class IsalEasyHomeyCheapestStationSensor(
+    CoordinatorEntity[PetrolStationCoordinator], SensorEntity
+):
+    """Sensor for cheapest gas station for a specific fuel type."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:currency-eur"
+    _attr_native_unit_of_measurement = "EUR"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: PetrolStationCoordinator,
+        entry: ConfigEntry,
+        fuel_type: str,
+    ) -> None:
+        """Initialize the sensor.
+
+        Args:
+            coordinator: The data coordinator
+            entry: The config entry
+            fuel_type: The fuel type (E5, E10, DIESEL)
+
+        """
+        super().__init__(coordinator)
+        self._fuel_type = fuel_type
+        fuel_type_lower = fuel_type.lower()
+        self._attr_unique_id = f"{entry.entry_id}_cheapest_station_{fuel_type_lower}"
+        self._attr_translation_key = f"cheapest_station_{fuel_type_lower}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": "isal Easy Homey",
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    def _get_station_data(self) -> dict[str, Any] | None:
+        """Get station data for this fuel type.
+
+        Returns:
+            Station data dictionary or None
+
+        """
+        cheapest_stations = self.coordinator.data.get("cheapest_stations", {})
+        return cheapest_stations.get(self._fuel_type)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the state of the sensor.
+
+        Returns:
+            The price
+
+        """
+        station_data = self._get_station_data()
+        if station_data:
+            return get_price_from_prices(
+                station_data.get("prices", []), self._fuel_type
+            )
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the state attributes.
+
+        Returns:
+            Dictionary of attributes
+
+        """
+        station_data = self._get_station_data()
+        if not station_data:
+            return {}
+
+        return {
+            "fuel_type": self._fuel_type,
+            "station_id": station_data.get("stationId"),
+            "name": station_data.get("name"),
+            "brand": station_data.get("brand"),
+            "address": format_address(station_data.get("address", {})),
+            "location": station_data.get("location"),
+            "status": station_data.get("status"),
+            "e5_price": get_price_from_prices(
+                station_data.get("prices", []), "E5"
+            ),
+            "e10_price": get_price_from_prices(
+                station_data.get("prices", []), "E10"
+            ),
+            "diesel_price": get_price_from_prices(
+                station_data.get("prices", []), "DIESEL"
+            ),
+            "distance": station_data.get("location", {}).get("distance"),
+        }
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available.
+
+        Returns:
+            True if available
+
+        """
+        return super().available and bool(self._get_station_data())
+
+
+class IsalEasyHomeyUserNearestStationSensor(
+    CoordinatorEntity[PetrolStationCoordinator], SensorEntity
+):
+    """Sensor for nearest gas station for a specific user location."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:gas-station-outline"
+    _attr_native_unit_of_measurement = "km"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: PetrolStationCoordinator,
+        entry: ConfigEntry,
+        user_name: str,
+    ) -> None:
+        """Initialize the sensor.
+
+        Args:
+            coordinator: The data coordinator
+            entry: The config entry
+            user_name: The user name
+
+        """
+        super().__init__(coordinator)
+        self._user_name = user_name
+        # Create a safe unique_id from user_name
+        safe_user_name = user_name.lower().replace(" ", "_")
+        self._attr_unique_id = f"{entry.entry_id}_nearest_station_{safe_user_name}"
+        self._attr_name = f"Nächste Tankstelle {user_name}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": "isal Easy Homey",
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    def _get_station_data(self) -> dict[str, Any] | None:
+        """Get station data for this user.
+
+        Returns:
+            Station data dictionary or None
+
+        """
+        user_nearest_stations = self.coordinator.data.get("user_nearest_stations", {})
+        return user_nearest_stations.get(self._user_name)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the state of the sensor.
+
+        Returns:
+            The distance in km
+
+        """
+        station_data = self._get_station_data()
+        if station_data:
+            return station_data.get("location", {}).get("distance")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the state attributes.
+
+        Returns:
+            Dictionary of attributes
+
+        """
+        station_data = self._get_station_data()
+        if not station_data:
+            return {"user_name": self._user_name}
+
+        return {
+            "user_name": self._user_name,
+            "station_id": station_data.get("stationId"),
+            "name": station_data.get("name"),
+            "brand": station_data.get("brand"),
+            "address": format_address(station_data.get("address", {})),
+            "location": station_data.get("location"),
+            "status": station_data.get("status"),
+            "e5_price": get_price_from_prices(
+                station_data.get("prices", []), "E5"
+            ),
+            "e10_price": get_price_from_prices(
+                station_data.get("prices", []), "E10"
+            ),
+            "diesel_price": get_price_from_prices(
+                station_data.get("prices", []), "DIESEL"
+            ),
+            "distance": station_data.get("location", {}).get("distance"),
+        }
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available.
+
+        Returns:
+            True if available
+
+        """
+        return super().available and bool(self._get_station_data())
 

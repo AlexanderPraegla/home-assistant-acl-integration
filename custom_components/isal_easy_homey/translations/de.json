@@ -6,10 +6,10 @@
         "description": "Konfigurieren Sie die Integration mit Ihrer API",
         "data": {
           "api_base_url": "API Basis URL",
-          "location_entity_id": "Standort Entity (optional)",
+          "location_entity_id_cheapest": "Standort Entity für günstigste Tankstelle (optional)",
+          "location_entity_id_nearest": "Standort Entity für nächste Tankstelle (optional)",
           "warning_cell_id": "Warncell ID",
-          "search_radius": "Suchradius (km)",
-          "petrol_type": "Kraftstofftyp"
+          "search_radius": "Suchradius (km)"
         }
       }
     },
@@ -26,16 +26,52 @@
   "options": {
     "step": {
       "init": {
-        "title": "IsAl Easy Homey Optionen",
-        "description": "Passen Sie die Einstellungen an",
+        "title": "ISAL Easy Homey Optionen",
+        "description": "Wählen Sie eine Option aus",
+        "menu_options": {
+          "general_settings": "Allgemeine Einstellungen",
+          "user_locations": "Benutzer-Standorte"
+        }
+      },
+      "general_settings": {
+        "title": "Allgemeine Einstellungen",
+        "description": "Passen Sie die Einstellungen der Integration an",
         "data": {
           "search_radius": "Suchradius (km)",
           "warning_cell_id": "Warncell ID",
-          "petrol_type": "Kraftstofftyp für günstigste Tankstelle",
           "update_interval_petrol": "Update-Intervall Tankstellen (Minuten)",
           "update_interval_weather": "Update-Intervall Unwetter (Minuten)",
           "update_interval_pollen": "Update-Intervall Pollenflug (Minuten)",
           "update_interval_waste": "Update-Intervall Müllabfuhr (Minuten)"
+        }
+      },
+      "user_locations": {
+        "title": "Benutzer-Standorte verwalten",
+        "description": "Aktuelle Standorte:\n\n{locations}",
+        "data": {
+          "action": "Aktion"
+        },
+        "data_description": {
+          "action": "Wählen Sie eine Aktion aus"
+        }
+      },
+      "add_user_location": {
+        "title": "Neuen Benutzer-Standort hinzufügen",
+        "description": "Fügen Sie einen neuen Standort für personalisierte Tankstellen-Sensoren hinzu",
+        "data": {
+          "name": "Name des Benutzers",
+          "entity_id": "Standort-Entity"
+        },
+        "data_description": {
+          "name": "Ein eindeutiger Name für diesen Standort (z.B. Papa, Mama, Arbeit)",
+          "entity_id": "Wählen Sie eine Entity mit GPS-Koordinaten (Person, Device Tracker oder Zone)"
+        }
+      },
+      "remove_user_location": {
+        "title": "Benutzer-Standort entfernen",
+        "description": "Wählen Sie den zu entfernenden Standort aus",
+        "data": {
+          "location": "Standort"
         }
       }
     }
@@ -45,8 +81,14 @@
       "nearest_station": {
         "name": "Nächste Tankstelle"
       },
-      "cheapest_station": {
-        "name": "Günstigste Tankstelle"
+      "cheapest_station_e5": {
+        "name": "Günstigste Tankstelle Super E5"
+      },
+      "cheapest_station_e10": {
+        "name": "Günstigste Tankstelle Super E10"
+      },
+      "cheapest_station_diesel": {
+        "name": "Günstigste Tankstelle Diesel"
       },
       "current_weather_warning": {
         "name": "Aktuelle Unwetterwarnung"

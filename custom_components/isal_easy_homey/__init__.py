@@ -13,6 +13,9 @@ from .api import IsalEasyHomeyApiClient
 from .const import (
     CONF_API_BASE_URL,
     CONF_LOCATION_ENTITY_ID,
+    CONF_LOCATION_ENTITY_ID_CHEAPEST,
+    CONF_LOCATION_ENTITY_ID_NEAREST,
+    CONF_USER_LOCATIONS,
     CONF_PETROL_TYPE,
     CONF_SEARCH_RADIUS,
     CONF_UPDATE_INTERVAL_PETROL,
@@ -63,15 +66,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = IsalEasyHomeyApiClient(entry.data[CONF_API_BASE_URL], session)
 
     # Get configuration values
-    location_entity_id = entry.data.get(CONF_LOCATION_ENTITY_ID)
+    # Support both old (single location) and new (separate locations) config
+    location_entity_id_cheapest = entry.data.get(CONF_LOCATION_ENTITY_ID_CHEAPEST) or entry.data.get(CONF_LOCATION_ENTITY_ID)
+    location_entity_id_nearest = entry.data.get(CONF_LOCATION_ENTITY_ID_NEAREST) or entry.data.get(CONF_LOCATION_ENTITY_ID)
+    user_locations = entry.options.get(CONF_USER_LOCATIONS, entry.data.get(CONF_USER_LOCATIONS, []))
+
     warning_cell_id = entry.options.get(
         CONF_WARNING_CELL_ID, entry.data.get(CONF_WARNING_CELL_ID, DEFAULT_WARNING_CELL_ID)
     )
     search_radius = entry.options.get(
         CONF_SEARCH_RADIUS, entry.data.get(CONF_SEARCH_RADIUS, DEFAULT_SEARCH_RADIUS)
-    )
-    petrol_type = entry.options.get(
-        CONF_PETROL_TYPE, entry.data.get(CONF_PETROL_TYPE, DEFAULT_PETROL_TYPE)
     )
 
     # Get update intervals
@@ -93,26 +97,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         COORDINATOR_PETROL: PetrolStationCoordinator(
             hass,
             client,
-            location_entity_id,
+            location_entity_id_cheapest,
+            location_entity_id_nearest,
+            user_locations,
             search_radius,
-            petrol_type,
             timedelta(minutes=update_interval_petrol),
+            entry,
         ),
         COORDINATOR_WEATHER: WeatherWarningCoordinator(
             hass,
             client,
             warning_cell_id,
             timedelta(minutes=update_interval_weather),
+            entry,
         ),
         COORDINATOR_POLLEN: PollenFlightCoordinator(
             hass,
             client,
             timedelta(minutes=update_interval_pollen),
+            entry,
         ),
         COORDINATOR_WASTE: WasteCollectionCoordinator(
             hass,
             client,
             timedelta(minutes=update_interval_waste),
+            entry,
         ),
     }
 
