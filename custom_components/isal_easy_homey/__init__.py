@@ -24,17 +24,20 @@ from .const import (
     CONF_UPDATE_INTERVAL_POLLEN,
     CONF_UPDATE_INTERVAL_WASTE,
     CONF_UPDATE_INTERVAL_WEATHER,
+    CONF_UPDATE_INTERVAL_SERVICE_INFO,
     CONF_WARNING_CELL_ID,
     COORDINATOR_PETROL,
     COORDINATOR_POLLEN,
     COORDINATOR_WASTE,
     COORDINATOR_WEATHER,
+    COORDINATOR_SERVICE_INFO,
     DEFAULT_PETROL_TYPE,
     DEFAULT_SEARCH_RADIUS,
     DEFAULT_UPDATE_INTERVAL_PETROL,
     DEFAULT_UPDATE_INTERVAL_POLLEN,
     DEFAULT_UPDATE_INTERVAL_WASTE,
     DEFAULT_UPDATE_INTERVAL_WEATHER,
+    DEFAULT_UPDATE_INTERVAL_SERVICE_INFO,
     DEFAULT_WARNING_CELL_ID,
     DOMAIN,
 )
@@ -43,6 +46,7 @@ from .coordinator import (
     PollenFlightCoordinator,
     WasteCollectionCoordinator,
     WeatherWarningCoordinator,
+    ServiceInfoCoordinator,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,6 +99,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     update_interval_waste = entry.options.get(
         CONF_UPDATE_INTERVAL_WASTE, DEFAULT_UPDATE_INTERVAL_WASTE
     )
+    update_interval_service_info = entry.options.get(
+        CONF_UPDATE_INTERVAL_SERVICE_INFO, DEFAULT_UPDATE_INTERVAL_SERVICE_INFO
+    )
 
     # Create coordinators
     coordinators = {
@@ -126,6 +133,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             hass,
             client,
             timedelta(minutes=update_interval_waste),
+            entry,
+        ),
+        COORDINATOR_SERVICE_INFO: ServiceInfoCoordinator(
+            hass,
+            client,
+            timedelta(minutes=update_interval_service_info),
             entry,
         ),
     }

@@ -23,6 +23,7 @@ from .const import (
     COORDINATOR_POLLEN,
     COORDINATOR_WASTE,
     COORDINATOR_WEATHER,
+    COORDINATOR_SERVICE_INFO,
     DOMAIN,
     MANUFACTURER,
     MODEL,
@@ -34,6 +35,7 @@ from .coordinator import (
     PollenFlightCoordinator,
     WasteCollectionCoordinator,
     WeatherWarningCoordinator,
+    ServiceInfoCoordinator,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -547,6 +549,15 @@ async def async_setup_entry(
                 waste_type_name,
             )
         )
+
+    # Add service info sensor
+    service_info_coordinator = coordinators[COORDINATOR_SERVICE_INFO]
+    entities.append(
+        IsalEasyHomeyServiceInfoSensor(
+            service_info_coordinator,
+            entry,
+        )
+    )
 
     async_add_entities(entities)
 
@@ -1407,3 +1418,77 @@ class IsalEasyHomeyStationIdSensor(
 
         """
         return super().available and bool(self._get_station_data())
+
+
+class IsalEasyHomeyServiceInfoSensor(
+    CoordinatorEntity[ServiceInfoCoordinator], SensorEntity
+):
+    """Sensor for service uptime and info."""
+
+    _attr_has_entity_name = True
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = "s"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: ServiceInfoCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        """Initialize the sensor.
+
+        Args:
+            coordinator: The data coordinator
+            entry: The config entry
+
+        """
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_service_uptime"
+        self._attr_translation_key = "service_uptime"
+        self._attr_name = "Homeassistant ACL Service Uptime"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": "isal Easy Homey",
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state of the sensor.
+
+        Returns:
+            The service uptime in seconds
+
+        """
+        if self.coordinator.data:
+            return self.coordinator.data.get("uptime")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the state attributes.
+
+        Returns:
+            Dictionary of attributes
+
+        """
+        if not self.coordinator.data:
+            return {}
+
+        return {
+            "api_specification_version": self.coordinator.data.get("apiSpecificationVersion"),
+            "service_version": self.coordinator.data.get("serviceVersion"),
+            "startup_time": self.coordinator.data.get("startupTime"),
+        }
+
+    @property
+    def icon(self) -> str:
+        """Return the icon.
+
+        Returns:
+            Icon string
+
+        """
+        return "mdi:information-outline"
+

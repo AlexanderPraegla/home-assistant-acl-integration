@@ -45,7 +45,8 @@
           "update_interval_petrol": "Update Interval Petrol Stations (minutes)",
           "update_interval_weather": "Update Interval Weather Warnings (minutes)",
           "update_interval_pollen": "Update Interval Pollen Flight (minutes)",
-          "update_interval_waste": "Update Interval Waste Collection (minutes)"
+          "update_interval_waste": "Update Interval Waste Collection (minutes)",
+          "update_interval_service_info": "Update Interval Service Information (minutes)"
         }
       },
       "user_locations": {
@@ -180,6 +181,9 @@
       },
       "waste_problem": {
         "name": "Problem Waste"
+      },
+      "service_uptime": {
+        "name": "Homeassistant ACL Service Uptime"
       }
     },
     "binary_sensor": {

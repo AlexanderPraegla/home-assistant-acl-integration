@@ -22,6 +22,7 @@ CONF_UPDATE_INTERVAL_PETROL: Final = "update_interval_petrol"
 CONF_UPDATE_INTERVAL_WEATHER: Final = "update_interval_weather"
 CONF_UPDATE_INTERVAL_POLLEN: Final = "update_interval_pollen"
 CONF_UPDATE_INTERVAL_WASTE: Final = "update_interval_waste"
+CONF_UPDATE_INTERVAL_SERVICE_INFO: Final = "update_interval_service_info"
 
 # Default values
 DEFAULT_API_BASE_URL: Final = "https://easy-homey.local.isal-home.de/v1"
@@ -34,6 +35,7 @@ DEFAULT_UPDATE_INTERVAL_PETROL: Final = 5
 DEFAULT_UPDATE_INTERVAL_WEATHER: Final = 10
 DEFAULT_UPDATE_INTERVAL_POLLEN: Final = 30
 DEFAULT_UPDATE_INTERVAL_WASTE: Final = 30
+DEFAULT_UPDATE_INTERVAL_SERVICE_INFO: Final = 5
 
 # Update interval limits
 MIN_SEARCH_RADIUS: Final = 0.1
@@ -44,6 +46,7 @@ COORDINATOR_PETROL: Final = "petrol_station"
 COORDINATOR_WEATHER: Final = "weather_warning"
 COORDINATOR_POLLEN: Final = "pollen_flight"
 COORDINATOR_WASTE: Final = "waste_collection"
+COORDINATOR_SERVICE_INFO: Final = "service_info"
 
 # Device info
 MANUFACTURER: Final = "isal"

@@ -32,6 +32,7 @@ from .const import (
     CONF_UPDATE_INTERVAL_POLLEN,
     CONF_UPDATE_INTERVAL_WASTE,
     CONF_UPDATE_INTERVAL_WEATHER,
+    CONF_UPDATE_INTERVAL_SERVICE_INFO,
     CONF_WARNING_CELL_ID,
     DEFAULT_API_BASE_URL,
     DEFAULT_PETROL_TYPE,
@@ -40,6 +41,7 @@ from .const import (
     DEFAULT_UPDATE_INTERVAL_POLLEN,
     DEFAULT_UPDATE_INTERVAL_WASTE,
     DEFAULT_UPDATE_INTERVAL_WEATHER,
+    DEFAULT_UPDATE_INTERVAL_SERVICE_INFO,
     DEFAULT_WARNING_CELL_ID,
     DOMAIN,
     MAX_SEARCH_RADIUS,
@@ -313,6 +315,13 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                         default=self.config_entry.options.get(
                             CONF_UPDATE_INTERVAL_WASTE,
                             DEFAULT_UPDATE_INTERVAL_WASTE,
+                        ),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
+                    vol.Optional(
+                        CONF_UPDATE_INTERVAL_SERVICE_INFO,
+                        default=self.config_entry.options.get(
+                            CONF_UPDATE_INTERVAL_SERVICE_INFO,
+                            DEFAULT_UPDATE_INTERVAL_SERVICE_INFO,
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
                 }

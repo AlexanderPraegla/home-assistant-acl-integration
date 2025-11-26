@@ -347,3 +347,51 @@ class WasteCollectionCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except IsalEasyHomeyApiError as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
+
+class ServiceInfoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator for service info data."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: IsalEasyHomeyApiClient,
+        update_interval: timedelta,
+        config_entry,
+    ) -> None:
+        """Initialize the coordinator.
+
+        Args:
+            hass: The Home Assistant instance
+            client: The API client
+            update_interval: Update interval
+            config_entry: The config entry
+
+        """
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_service_info",
+            update_interval=update_interval,
+            config_entry=config_entry,
+        )
+        self.client = client
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Fetch data from API.
+
+        Returns:
+            Dictionary with service info data
+
+        Raises:
+            UpdateFailed: If update fails
+
+        """
+        try:
+            # Get service info
+            info = await self.client.get_service_info()
+            return info
+
+        except IsalEasyHomeyApiError as err:
+            raise UpdateFailed(f"Error communicating with API: {err}") from err
+
+

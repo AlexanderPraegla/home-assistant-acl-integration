@@ -240,6 +240,17 @@ class IsalEasyHomeyApiClient:
         """
         return await self._request("GET", "/waste-collection/next-collection")
 
+    # Service Info endpoint
+
+    async def get_service_info(self) -> dict[str, Any]:
+        """Get service information and status.
+
+        Returns:
+            Service info data including uptime, versions, and startup time
+
+        """
+        return await self._request("GET", "/info")
+
     async def test_connection(self) -> bool:
         """Test the connection to the API.
 

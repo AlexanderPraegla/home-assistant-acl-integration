@@ -45,7 +45,8 @@
           "update_interval_petrol": "Update-Intervall Tankstellen (Minuten)",
           "update_interval_weather": "Update-Intervall Unwetter (Minuten)",
           "update_interval_pollen": "Update-Intervall Pollenflug (Minuten)",
-          "update_interval_waste": "Update-Intervall Müllabfuhr (Minuten)"
+          "update_interval_waste": "Update-Intervall Müllabfuhr (Minuten)",
+          "update_interval_service_info": "Update-Intervall Service-Informationen (Minuten)"
         }
       },
       "user_locations": {
@@ -180,6 +181,9 @@
       },
       "waste_problem": {
         "name": "Problemmüll"
+      },
+      "service_uptime": {
+        "name": "Homeassistant ACL Service Uptime"
       }
     },
     "binary_sensor": {
