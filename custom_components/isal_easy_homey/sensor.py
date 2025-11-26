@@ -109,12 +109,15 @@ PETROL_STATION_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
             "e5_price": get_price_from_prices(
                 data.get("nearest_station", {}).get("prices", []), "E5"
             ),
+            "e5_price_eur": f"{get_price_from_prices(data.get('nearest_station', {}).get('prices', []), 'E5'):.3f} €" if get_price_from_prices(data.get("nearest_station", {}).get("prices", []), "E5") is not None else "-",
             "e10_price": get_price_from_prices(
                 data.get("nearest_station", {}).get("prices", []), "E10"
             ),
+            "e10_price_eur": f"{get_price_from_prices(data.get('nearest_station', {}).get('prices', []), 'E10'):.3f} €" if get_price_from_prices(data.get("nearest_station", {}).get("prices", []), "E10") is not None else "-",
             "diesel_price": get_price_from_prices(
                 data.get("nearest_station", {}).get("prices", []), "DIESEL"
             ),
+            "diesel_price_eur": f"{get_price_from_prices(data.get('nearest_station', {}).get('prices', []), 'DIESEL'):.3f} €" if get_price_from_prices(data.get("nearest_station", {}).get("prices", []), "DIESEL") is not None else "-",
             "distance": data.get("nearest_station", {})
             .get("location", {})
             .get("distance"),
@@ -1141,12 +1144,15 @@ class IsalEasyHomeyCheapestStationSensor(
             "e5_price": get_price_from_prices(
                 station_data.get("prices", []), "E5"
             ),
+            "e5_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E5'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E5") is not None else "-",
             "e10_price": get_price_from_prices(
                 station_data.get("prices", []), "E10"
             ),
+            "e10_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E10'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E10") is not None else "-",
             "diesel_price": get_price_from_prices(
                 station_data.get("prices", []), "DIESEL"
             ),
+            "diesel_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'DIESEL'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "DIESEL") is not None else "-",
             "distance": station_data.get("location", {}).get("distance"),
         }
 
@@ -1244,12 +1250,15 @@ class IsalEasyHomeyUserNearestStationSensor(
             "e5_price": get_price_from_prices(
                 station_data.get("prices", []), "E5"
             ),
+            "e5_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E5'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E5") is not None else "-",
             "e10_price": get_price_from_prices(
                 station_data.get("prices", []), "E10"
             ),
+            "e10_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E10'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E10") is not None else "-",
             "diesel_price": get_price_from_prices(
                 station_data.get("prices", []), "DIESEL"
             ),
+            "diesel_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'DIESEL'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "DIESEL") is not None else "-",
             "distance": station_data.get("location", {}).get("distance"),
         }
 
@@ -1357,12 +1366,15 @@ class IsalEasyHomeyStationIdSensor(
             "e5_price": get_price_from_prices(
                 station_data.get("prices", []), "E5"
             ),
+            "e5_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E5'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E5") is not None else "-",
             "e10_price": get_price_from_prices(
                 station_data.get("prices", []), "E10"
             ),
+            "e10_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'E10'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "E10") is not None else "-",
             "diesel_price": get_price_from_prices(
                 station_data.get("prices", []), "DIESEL"
             ),
+            "diesel_price_eur": f"{get_price_from_prices(station_data.get('prices', []), 'DIESEL'):.3f} €" if get_price_from_prices(station_data.get("prices", []), "DIESEL") is not None else "-",
             "all_day_opened": station_data.get("openingHours", {}).get("allDayOpened"),
             "opening_hours": station_data.get("openingHours", {}).get("openingHours"),
         }
