@@ -6,6 +6,7 @@ DOMAIN: Final = "isal_easy_homey"
 
 # Configuration keys
 CONF_API_BASE_URL: Final = "api_base_url"
+CONF_API_KEY: Final = "api_key"
 CONF_LOCATION_ENTITY_ID: Final = "location_entity_id"
 CONF_LOCATION_ENTITY_ID_CHEAPEST: Final = "location_entity_id_cheapest"
 CONF_LOCATION_ENTITY_ID_NEAREST: Final = "location_entity_id_nearest"
@@ -23,7 +24,7 @@ CONF_UPDATE_INTERVAL_POLLEN: Final = "update_interval_pollen"
 CONF_UPDATE_INTERVAL_WASTE: Final = "update_interval_waste"
 
 # Default values
-DEFAULT_API_BASE_URL: Final = "http://192.168.178.31:8080/v1"
+DEFAULT_API_BASE_URL: Final = "https://easy-homey.local.isal-home.de/v1"
 DEFAULT_WARNING_CELL_ID: Final = "809177119"
 DEFAULT_SEARCH_RADIUS: Final = 15.0
 DEFAULT_PETROL_TYPE: Final = "E5"

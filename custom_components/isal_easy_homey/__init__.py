@@ -12,6 +12,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import IsalEasyHomeyApiClient
 from .const import (
     CONF_API_BASE_URL,
+    CONF_API_KEY,
     CONF_LOCATION_ENTITY_ID,
     CONF_LOCATION_ENTITY_ID_CHEAPEST,
     CONF_LOCATION_ENTITY_ID_NEAREST,
@@ -64,7 +65,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Create API client
     session = async_get_clientsession(hass)
-    client = IsalEasyHomeyApiClient(entry.data[CONF_API_BASE_URL], session)
+    api_key = entry.options.get(CONF_API_KEY, entry.data.get(CONF_API_KEY))
+    client = IsalEasyHomeyApiClient(entry.data[CONF_API_BASE_URL], session, api_key)
 
     # Get configuration values
     # Support both old (single location) and new (separate locations) config

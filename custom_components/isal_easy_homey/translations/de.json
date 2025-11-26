@@ -6,6 +6,7 @@
         "description": "Konfigurieren Sie die Integration mit Ihrer API",
         "data": {
           "api_base_url": "API Basis URL",
+          "api_key": "API Schlüssel",
           "location_entity_id_cheapest": "Standort Entity für günstigste Tankstelle (optional)",
           "location_entity_id_nearest": "Standort Entity für nächste Tankstelle (optional)",
           "warning_cell_id": "Warncell ID",
@@ -38,6 +39,7 @@
         "title": "Allgemeine Einstellungen",
         "description": "Passen Sie die Einstellungen der Integration an",
         "data": {
+          "api_key": "API Schlüssel",
           "search_radius": "Suchradius (km)",
           "warning_cell_id": "Warncell ID",
           "update_interval_petrol": "Update-Intervall Tankstellen (Minuten)",

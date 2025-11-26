@@ -20,6 +20,7 @@ from .api import (
 )
 from .const import (
     CONF_API_BASE_URL,
+    CONF_API_KEY,
     CONF_LOCATION_ENTITY_ID,
     CONF_LOCATION_ENTITY_ID_CHEAPEST,
     CONF_LOCATION_ENTITY_ID_NEAREST,
@@ -64,7 +65,8 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     """
     session = async_get_clientsession(hass)
-    client = IsalEasyHomeyApiClient(data[CONF_API_BASE_URL], session)
+    api_key = data.get(CONF_API_KEY)
+    client = IsalEasyHomeyApiClient(data[CONF_API_BASE_URL], session, api_key)
 
     # Test the connection
     await client.test_connection()
@@ -158,6 +160,7 @@ class IsalEasyHomeyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_API_BASE_URL, default=DEFAULT_API_BASE_URL
                     ): str,
+                    vol.Required(CONF_API_KEY): str,
                     vol.Optional(CONF_LOCATION_ENTITY_ID_CHEAPEST): selector.EntitySelector(
                         selector.EntitySelectorConfig(
                             domain=["device_tracker", "person", "zone"]
@@ -256,6 +259,13 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             step_id="general_settings",
             data_schema=vol.Schema(
                 {
+                    vol.Required(
+                        CONF_API_KEY,
+                        default=self.config_entry.options.get(
+                            CONF_API_KEY,
+                            self.config_entry.data.get(CONF_API_KEY, ""),
+                        ),
+                    ): str,
                     vol.Optional(
                         CONF_SEARCH_RADIUS,
                         default=self.config_entry.options.get(
@@ -522,7 +532,11 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                         CONF_API_BASE_URL,
                         self.config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
                     )
-                    client = IsalEasyHomeyApiClient(api_base_url, session)
+                    api_key = self.config_entry.options.get(
+                        CONF_API_KEY,
+                        self.config_entry.data.get(CONF_API_KEY)
+                    )
+                    client = IsalEasyHomeyApiClient(api_base_url, session, api_key)
                     await client.get_petrol_station(station_id)
 
                     # Add to list if validation succeeded

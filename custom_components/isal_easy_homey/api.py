@@ -32,16 +32,19 @@ class IsalEasyHomeyApiClient:
         self,
         base_url: str,
         session: ClientSession,
+        api_key: str | None = None,
     ) -> None:
         """Initialize the API client.
 
         Args:
             base_url: The base URL of the API
             session: The aiohttp session to use for requests
+            api_key: Optional API key to authenticate requests
 
         """
         self._base_url = base_url.rstrip("/")
         self._session = session
+        self._api_key = api_key
 
     async def _request(
         self,
@@ -65,6 +68,13 @@ class IsalEasyHomeyApiClient:
 
         """
         url = f"{self._base_url}{endpoint}"
+
+        # Add API key to params if available
+        if params is None:
+            params = {}
+        if self._api_key:
+            params["apiKey"] = self._api_key
+
         _LOGGER.debug("Making %s request to %s with params %s", method, url, params)
 
         try:

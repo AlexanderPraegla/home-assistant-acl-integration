@@ -6,6 +6,7 @@
         "description": "Configure the integration with your API",
         "data": {
           "api_base_url": "API Base URL",
+          "api_key": "API Key",
           "location_entity_id_cheapest": "Location Entity for Cheapest Station (optional)",
           "location_entity_id_nearest": "Location Entity for Nearest Station (optional)",
           "warning_cell_id": "Warning Cell ID",
@@ -38,6 +39,7 @@
         "title": "General Settings",
         "description": "Adjust the integration settings",
         "data": {
+          "api_key": "API Key",
           "search_radius": "Search Radius (km)",
           "warning_cell_id": "Warning Cell ID",
           "update_interval_petrol": "Update Interval Petrol Stations (minutes)",
@@ -107,8 +109,7 @@
   "error": {
     "invalid_station_id": "Invalid station ID or station not found",
     "station_id_exists": "This station ID has already been added"
-  }
-}
+  },
   "entity": {
     "sensor": {
       "nearest_station": {
