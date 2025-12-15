@@ -39,6 +39,7 @@
         "title": "General Settings",
         "description": "Adjust the integration settings",
         "data": {
+          "api_base_url": "API Base URL",
           "api_key": "API Key",
           "search_radius": "Search Radius (km)",
           "warning_cell_id": "Warning Cell ID",
@@ -105,11 +106,12 @@
           "station_id": "Station ID"
         }
       }
+    },
+    "error": {
+      "invalid_station_id": "Invalid station ID or station not found",
+      "station_id_exists": "This station ID has already been added",
+      "invalid_entity": "The specified entity does not exist or has no GPS coordinates"
     }
-  },
-  "error": {
-    "invalid_station_id": "Invalid station ID or station not found",
-    "station_id_exists": "This station ID has already been added"
   },
   "entity": {
     "sensor": {

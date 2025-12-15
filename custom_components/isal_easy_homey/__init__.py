@@ -69,8 +69,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Create API client
     session = async_get_clientsession(hass)
+    api_base_url = entry.options.get(CONF_API_BASE_URL, entry.data.get(CONF_API_BASE_URL))
     api_key = entry.options.get(CONF_API_KEY, entry.data.get(CONF_API_KEY))
-    client = IsalEasyHomeyApiClient(entry.data[CONF_API_BASE_URL], session, api_key)
+
+    _LOGGER.info("Setting up isal Easy Homey with API base URL: %s", api_base_url)
+    client = IsalEasyHomeyApiClient(api_base_url, session, api_key)
 
     # Get configuration values
     # Support both old (single location) and new (separate locations) config
@@ -187,6 +190,9 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
         entry: The config entry
 
     """
+    _LOGGER.info("Reloading isal Easy Homey integration")
+    _LOGGER.debug("Options after update: %s", entry.options)
+    _LOGGER.debug("Data: %s", entry.data)
     await async_unload_entry(hass, entry)
     await async_setup_entry(hass, entry)
 

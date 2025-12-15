@@ -191,7 +191,7 @@ class IsalEasyHomeyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> IsalEasyHomeyOptionsFlow:
+    ) -> config_entries.OptionsFlow:
         """Get the options flow for this handler.
 
         Args:
@@ -214,13 +214,30 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             config_entry: The config entry
 
         """
-        self.config_entry = config_entry
-        self._user_locations = list(
-            config_entry.options.get(CONF_USER_LOCATIONS, [])
-        )
-        self._station_ids = list(
-            config_entry.options.get(CONF_STATION_IDS, [])
-        )
+        _LOGGER.debug("Initializing options flow for entry: %s", config_entry.entry_id)
+        super().__init__()
+        self._config_entry = config_entry
+        try:
+            _LOGGER.debug("Options: %s", config_entry.options)
+            _LOGGER.debug("Data: %s", config_entry.data)
+            self._user_locations = list(
+                config_entry.options.get(
+                    CONF_USER_LOCATIONS,
+                    config_entry.data.get(CONF_USER_LOCATIONS, [])
+                )
+            )
+            self._station_ids = list(
+                config_entry.options.get(
+                    CONF_STATION_IDS,
+                    config_entry.data.get(CONF_STATION_IDS, [])
+                )
+            )
+            _LOGGER.debug("Loaded %d user locations and %d station IDs",
+                         len(self._user_locations), len(self._station_ids))
+        except Exception as err:
+            _LOGGER.exception("Error initializing options flow: %s", err)
+            self._user_locations = []
+            self._station_ids = []
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -234,10 +251,15 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             The flow result
 
         """
-        return self.async_show_menu(
-            step_id="init",
-            menu_options=["general_settings", "user_locations", "station_ids"],
-        )
+        _LOGGER.debug("Options flow init step, user_input: %s", user_input)
+        try:
+            return self.async_show_menu(
+                step_id="init",
+                menu_options=["general_settings", "user_locations", "station_ids"],
+            )
+        except Exception as err:
+            _LOGGER.exception("Error in options flow init: %s", err)
+            raise
 
     async def async_step_general_settings(
         self, user_input: dict[str, Any] | None = None
@@ -251,75 +273,94 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
             The flow result
 
         """
+        _LOGGER.debug("General settings step, user_input: %s", user_input)
         if user_input is not None:
             # Merge with existing user_locations and station_ids
             user_input[CONF_USER_LOCATIONS] = self._user_locations
             user_input[CONF_STATION_IDS] = self._station_ids
+            _LOGGER.debug("Saving general settings: %s", user_input)
             return self.async_create_entry(title="", data=user_input)
+
+        # Get current values with proper fallbacks
+        _LOGGER.debug("Loading current general settings")
+        try:
+            api_base_url = self._config_entry.options.get(
+                CONF_API_BASE_URL,
+                self._config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+            )
+            api_key = self._config_entry.options.get(
+                CONF_API_KEY,
+                self._config_entry.data.get(CONF_API_KEY, "")
+            )
+            search_radius = self._config_entry.options.get(
+                CONF_SEARCH_RADIUS,
+                self._config_entry.data.get(CONF_SEARCH_RADIUS, DEFAULT_SEARCH_RADIUS)
+            )
+            warning_cell_id = self._config_entry.options.get(
+                CONF_WARNING_CELL_ID,
+                self._config_entry.data.get(CONF_WARNING_CELL_ID, DEFAULT_WARNING_CELL_ID)
+            )
+        except Exception as err:
+            _LOGGER.exception("Error getting current settings: %s", err)
+            api_base_url = DEFAULT_API_BASE_URL
+            api_key = ""
+            search_radius = DEFAULT_SEARCH_RADIUS
+            warning_cell_id = DEFAULT_WARNING_CELL_ID
 
         return self.async_show_form(
             step_id="general_settings",
             data_schema=vol.Schema(
                 {
                     vol.Required(
+                        CONF_API_BASE_URL,
+                        default=api_base_url,
+                    ): str,
+                    vol.Required(
                         CONF_API_KEY,
-                        default=self.config_entry.options.get(
-                            CONF_API_KEY,
-                            self.config_entry.data.get(CONF_API_KEY, ""),
-                        ),
+                        default=api_key,
                     ): str,
                     vol.Optional(
                         CONF_SEARCH_RADIUS,
-                        default=self.config_entry.options.get(
-                            CONF_SEARCH_RADIUS,
-                            self.config_entry.data.get(
-                                CONF_SEARCH_RADIUS, DEFAULT_SEARCH_RADIUS
-                            ),
-                        ),
+                        default=search_radius,
                     ): vol.All(
                         vol.Coerce(float),
                         vol.Range(min=MIN_SEARCH_RADIUS, max=MAX_SEARCH_RADIUS),
                     ),
                     vol.Optional(
                         CONF_WARNING_CELL_ID,
-                        default=self.config_entry.options.get(
-                            CONF_WARNING_CELL_ID,
-                            self.config_entry.data.get(
-                                CONF_WARNING_CELL_ID, DEFAULT_WARNING_CELL_ID
-                            ),
-                        ),
+                        default=warning_cell_id,
                     ): str,
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_PETROL,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_UPDATE_INTERVAL_PETROL,
                             DEFAULT_UPDATE_INTERVAL_PETROL,
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_WEATHER,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_UPDATE_INTERVAL_WEATHER,
                             DEFAULT_UPDATE_INTERVAL_WEATHER,
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_POLLEN,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_UPDATE_INTERVAL_POLLEN,
                             DEFAULT_UPDATE_INTERVAL_POLLEN,
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_WASTE,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_UPDATE_INTERVAL_WASTE,
                             DEFAULT_UPDATE_INTERVAL_WASTE,
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
                     vol.Optional(
                         CONF_UPDATE_INTERVAL_SERVICE_INFO,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_UPDATE_INTERVAL_SERVICE_INFO,
                             DEFAULT_UPDATE_INTERVAL_SERVICE_INFO,
                         ),
@@ -348,7 +389,7 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_remove_user_location()
             elif action == "done":
                 # Save and return
-                options = dict(self.config_entry.options)
+                options = dict(self._config_entry.options)
                 options[CONF_USER_LOCATIONS] = self._user_locations
                 return self.async_create_entry(title="", data=options)
 
@@ -485,7 +526,7 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_remove_station_id()
             elif action == "done":
                 # Save and return
-                options = dict(self.config_entry.options)
+                options = dict(self._config_entry.options)
                 options[CONF_STATION_IDS] = self._station_ids
                 options[CONF_USER_LOCATIONS] = self._user_locations
                 return self.async_create_entry(title="", data=options)
@@ -535,25 +576,39 @@ class IsalEasyHomeyOptionsFlow(config_entries.OptionsFlow):
                 errors["station_id"] = "station_id_exists"
             else:
                 # Try to fetch the station to validate it exists
+                # But allow adding even if API is not reachable (for reconfiguration scenarios)
                 try:
                     session = async_get_clientsession(self.hass)
-                    api_base_url = self.config_entry.options.get(
+                    api_base_url = self._config_entry.options.get(
                         CONF_API_BASE_URL,
-                        self.config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+                        self._config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
                     )
-                    api_key = self.config_entry.options.get(
+                    api_key = self._config_entry.options.get(
                         CONF_API_KEY,
-                        self.config_entry.data.get(CONF_API_KEY)
+                        self._config_entry.data.get(CONF_API_KEY)
                     )
                     client = IsalEasyHomeyApiClient(api_base_url, session, api_key)
                     await client.get_petrol_station(station_id)
+                    _LOGGER.debug("Successfully validated station ID %s", station_id)
 
-                    # Add to list if validation succeeded
+                except (IsalEasyHomeyApiConnectionError, IsalEasyHomeyApiTimeoutError):
+                    # API not reachable - allow adding anyway
+                    _LOGGER.warning(
+                        "Could not validate station ID %s - API not reachable. Adding anyway.",
+                        station_id
+                    )
+                except IsalEasyHomeyApiError as err:
+                    # Other API error - station might not exist
+                    _LOGGER.error("Error validating station ID %s: %s", station_id, err)
+                    errors["station_id"] = "invalid_station_id"
+                except Exception as err:
+                    # Unexpected error - log but allow adding
+                    _LOGGER.exception("Unexpected error validating station ID %s: %s", station_id, err)
+
+                if not errors:
+                    # Add to list
                     self._station_ids.append(station_id)
                     return await self.async_step_station_ids()
-
-                except IsalEasyHomeyApiError:
-                    errors["station_id"] = "invalid_station_id"
 
         return self.async_show_form(
             step_id="add_station_id",
