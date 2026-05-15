@@ -605,7 +605,7 @@ WATER_SOFTENER_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         key="water_softener_regeneration_count",
         translation_key="water_softener_regeneration_count",
         icon="mdi:counter",
-        state_class=SensorStateClass.TOTAL_INCREASING,
+        state_class=SensorStateClass.TOTAL,
         value_fn=lambda data: data.get("regeneration", {}).get("totalRegenerationCount"),
     ),
     IsalEasyHomeySensorEntityDescription(
@@ -683,8 +683,8 @@ WATER_CONTROL_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         icon="mdi:water",
         native_unit_of_measurement="m³",
         device_class=SensorDeviceClass.WATER,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda data: round(data.get("totalWaterConsumption", 0) / 1000, 3) if data.get("totalWaterConsumption") is not None else None,
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda data: round(data.get("totalWaterConsumption") / 1000, 3) if data.get("totalWaterConsumption") is not None else None,
     ),
     IsalEasyHomeySensorEntityDescription(
         key="water_control_treated_consumption",
@@ -692,8 +692,8 @@ WATER_CONTROL_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         icon="mdi:water-check",
         native_unit_of_measurement="m³",
         device_class=SensorDeviceClass.WATER,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda data: round(data.get("treatedWaterConsumption", 0) / 1000, 3) if data.get("treatedWaterConsumption") is not None else None,
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda data: round(data.get("treatedWaterConsumption") / 1000, 3) if data.get("treatedWaterConsumption") is not None else None,
     ),
     IsalEasyHomeySensorEntityDescription(
         key="water_control_untreated_consumption",
@@ -701,8 +701,8 @@ WATER_CONTROL_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         icon="mdi:water-alert",
         native_unit_of_measurement="m³",
         device_class=SensorDeviceClass.WATER,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda data: round(data.get("untreatedWaterConsumption", 0) / 1000, 3) if data.get("untreatedWaterConsumption") is not None else None,
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda data: round(data.get("untreatedWaterConsumption") / 1000, 3) if data.get("untreatedWaterConsumption") is not None else None,
     ),
     IsalEasyHomeySensorEntityDescription(
         key="water_control_last_updated",
