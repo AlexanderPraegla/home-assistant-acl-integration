@@ -75,8 +75,8 @@ DEVICE_NAME_WATER_CONTROL: Final = "Easy Homey Wasserkontrolle"
 # Update Intervals
 CONF_UPDATE_INTERVAL_WATER_SOFTENER: Final = "update_interval_water_softener"
 CONF_UPDATE_INTERVAL_WATER_CONTROL: Final = "update_interval_water_control"
-DEFAULT_UPDATE_INTERVAL_WATER_SOFTENER: Final = 5
-DEFAULT_UPDATE_INTERVAL_WATER_CONTROL: Final = 5
+DEFAULT_UPDATE_INTERVAL_WATER_SOFTENER: Final = 15  # Sekunden
+DEFAULT_UPDATE_INTERVAL_WATER_CONTROL: Final = 15  # Sekunden
 
 # API Endpoints
 ENDPOINT_WATER_SOFTENER: Final = "/water/softener"
@@ -133,9 +133,10 @@ Zwei neue Klassen analog zu `ServiceInfoCoordinator`:
 - `PLATFORMS` um `Platform.SELECT`, `Platform.BUTTON`, `Platform.SWITCH` erweitern
 - Neue Coordinators im `coordinators` Dict instanziieren:
   ```python
-  COORDINATOR_WATER_SOFTENER: WaterSoftenerCoordinator(hass, client, timedelta(...), entry)
-  COORDINATOR_WATER_CONTROL: WaterControlCoordinator(hass, client, timedelta(...), entry)
+  COORDINATOR_WATER_SOFTENER: WaterSoftenerCoordinator(hass, client, timedelta(seconds=update_interval_water_softener), entry)
+  COORDINATOR_WATER_CONTROL: WaterControlCoordinator(hass, client, timedelta(seconds=update_interval_water_control), entry)
   ```
+  **Hinweis:** Im Gegensatz zu den anderen Coordinators (Minuten) verwenden die Wasser-Devices `timedelta(seconds=...)`, da das Default-Intervall 15 Sekunden beträgt.
 
 ---
 
