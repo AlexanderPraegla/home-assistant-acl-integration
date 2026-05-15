@@ -25,10 +25,9 @@ from .const import (
     COORDINATOR_WEATHER,
     COORDINATOR_SERVICE_INFO,
     DOMAIN,
-    MANUFACTURER,
-    MODEL,
     POLLEN_TYPES,
     WASTE_TYPES,
+    get_device_info,
 )
 from .coordinator import (
     PetrolStationCoordinator,
@@ -457,6 +456,7 @@ async def async_setup_entry(
             petrol_coordinator,
             entry,
             description,
+            COORDINATOR_PETROL,
         )
         for description in PETROL_STATION_SENSORS
     )
@@ -502,6 +502,7 @@ async def async_setup_entry(
             weather_coordinator,
             entry,
             description,
+            COORDINATOR_WEATHER,
         )
         for description in WEATHER_WARNING_SENSORS
     )
@@ -586,6 +587,7 @@ class IsalEasyHomeySensor(
         ),
         entry: ConfigEntry,
         description: IsalEasyHomeySensorEntityDescription,
+        coordinator_key: str,
     ) -> None:
         """Initialize the sensor.
 
@@ -593,17 +595,13 @@ class IsalEasyHomeySensor(
             coordinator: The data coordinator
             entry: The config entry
             description: The entity description
+            coordinator_key: The coordinator key for device assignment
 
         """
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, coordinator_key)
 
     @property
     def native_value(self) -> Any:
@@ -679,12 +677,7 @@ class IsalEasyHomeyHighestPollenSensor(
         """
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.entry_id}_highest_pollen_severity"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_POLLEN)
 
     @property
     def native_value(self) -> str | None:
@@ -775,12 +768,7 @@ class IsalEasyHomeyPollenSensor(
         self._pollen_name = pollen_name
         self._attr_unique_id = f"{entry.entry_id}_pollen_{pollen_name}"
         self._attr_translation_key = f"pollen_{pollen_name}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_POLLEN)
 
     def _get_pollen_data(self) -> dict[str, Any] | None:
         """Get pollen data for this type.
@@ -905,12 +893,7 @@ class IsalEasyHomeyNextWasteCollectionSensor(
         """
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.entry_id}_next_waste_collection"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_WASTE)
 
     @property
     def native_value(self) -> date | None:
@@ -984,12 +967,7 @@ class IsalEasyHomeyWasteSensor(
         self._waste_name = waste_name
         self._attr_unique_id = f"{entry.entry_id}_waste_{waste_name}"
         self._attr_translation_key = f"waste_{waste_name}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_WASTE)
 
     def _get_waste_data(self) -> dict[str, Any] | None:
         """Get waste collection data for this type.
@@ -1100,12 +1078,7 @@ class IsalEasyHomeyCheapestStationSensor(
         fuel_type_lower = fuel_type.lower()
         self._attr_unique_id = f"{entry.entry_id}_cheapest_station_{fuel_type_lower}"
         self._attr_translation_key = f"cheapest_station_{fuel_type_lower}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_PETROL)
 
     def _get_station_data(self) -> dict[str, Any] | None:
         """Get station data for this fuel type.
@@ -1208,12 +1181,7 @@ class IsalEasyHomeyUserNearestStationSensor(
         safe_user_name = user_name.lower().replace(" ", "_")
         self._attr_unique_id = f"{entry.entry_id}_nearest_station_{safe_user_name}"
         self._attr_name = f"Nächste Tankstelle {user_name}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_PETROL)
 
     def _get_station_data(self) -> dict[str, Any] | None:
         """Get station data for this user.
@@ -1311,12 +1279,7 @@ class IsalEasyHomeyStationIdSensor(
         # Create a safe unique_id from station_id
         safe_station_id = station_id.replace("-", "_")
         self._attr_unique_id = f"{entry.entry_id}_station_{safe_station_id}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_PETROL)
 
     def _get_station_data(self) -> dict[str, Any] | None:
         """Get station data for this station ID.
@@ -1446,12 +1409,7 @@ class IsalEasyHomeyServiceInfoSensor(
         self._attr_unique_id = f"{entry.entry_id}_service_uptime"
         self._attr_translation_key = "service_uptime"
         self._attr_name = "Homeassistant ACL Service Uptime"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, COORDINATOR_SERVICE_INFO)
 
     @property
     def native_value(self) -> int | None:

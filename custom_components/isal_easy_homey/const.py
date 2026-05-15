@@ -50,7 +50,20 @@ COORDINATOR_SERVICE_INFO: Final = "service_info"
 
 # Device info
 MANUFACTURER: Final = "isal"
-MODEL: Final = "Easy Homey API Integration"
+
+# Device models
+MODEL_GATEWAY: Final = "API Gateway"
+MODEL_PETROL: Final = "Petrol Station"
+MODEL_WEATHER: Final = "Weather Warnings"
+MODEL_POLLEN: Final = "Pollen Flight"
+MODEL_WASTE: Final = "Waste Collection"
+
+# Device names
+DEVICE_NAME_HUB: Final = "Easy Homey"
+DEVICE_NAME_PETROL: Final = "Easy Homey Tankstellen"
+DEVICE_NAME_WEATHER: Final = "Easy Homey Wetterwarnungen"
+DEVICE_NAME_POLLEN: Final = "Easy Homey Pollenflug"
+DEVICE_NAME_WASTE: Final = "Easy Homey Abfallkalender"
 
 # Petrol types
 PETROL_TYPES: Final = ["E5", "E10", "DIESEL"]
@@ -94,3 +107,27 @@ ENDPOINT_WASTE_COLLECTION_NEXT: Final = "/waste-collection/next-collection"
 # Platforms
 PLATFORMS: Final = ["sensor", "binary_sensor"]
 
+
+def get_device_info(entry_id: str, coordinator_key: str) -> dict:
+    """Get device info dict for given coordinator key."""
+    mapping = {
+        COORDINATOR_PETROL: (DEVICE_NAME_PETROL, MODEL_PETROL),
+        COORDINATOR_WEATHER: (DEVICE_NAME_WEATHER, MODEL_WEATHER),
+        COORDINATOR_POLLEN: (DEVICE_NAME_POLLEN, MODEL_POLLEN),
+        COORDINATOR_WASTE: (DEVICE_NAME_WASTE, MODEL_WASTE),
+        COORDINATOR_SERVICE_INFO: (DEVICE_NAME_HUB, MODEL_GATEWAY),
+    }
+    name, model = mapping[coordinator_key]
+
+    device_info = {
+        "identifiers": {(DOMAIN, f"{entry_id}_{coordinator_key}" if coordinator_key != COORDINATOR_SERVICE_INFO else entry_id)},
+        "name": name,
+        "manufacturer": MANUFACTURER,
+        "model": model,
+    }
+
+    # Sub-Devices verweisen auf den Hub
+    if coordinator_key != COORDINATOR_SERVICE_INFO:
+        device_info["via_device"] = (DOMAIN, entry_id)
+
+    return device_info

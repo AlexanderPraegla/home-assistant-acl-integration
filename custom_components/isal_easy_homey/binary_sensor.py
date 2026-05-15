@@ -19,8 +19,7 @@ from .const import (
     COORDINATOR_POLLEN,
     COORDINATOR_WEATHER,
     DOMAIN,
-    MANUFACTURER,
-    MODEL,
+    get_device_info,
 )
 from .coordinator import PollenFlightCoordinator, WeatherWarningCoordinator
 
@@ -102,6 +101,7 @@ async def async_setup_entry(
             weather_coordinator,
             entry,
             description,
+            COORDINATOR_WEATHER,
         )
         for description in WEATHER_WARNING_BINARY_SENSORS
     )
@@ -113,6 +113,7 @@ async def async_setup_entry(
             pollen_coordinator,
             entry,
             description,
+            COORDINATOR_POLLEN,
         )
         for description in POLLEN_BINARY_SENSORS
     )
@@ -134,6 +135,7 @@ class IsalEasyHomeyBinarySensor(
         coordinator: WeatherWarningCoordinator | PollenFlightCoordinator,
         entry: ConfigEntry,
         description: IsalEasyHomeyBinarySensorEntityDescription,
+        coordinator_key: str,
     ) -> None:
         """Initialize the binary sensor.
 
@@ -141,17 +143,13 @@ class IsalEasyHomeyBinarySensor(
             coordinator: The data coordinator
             entry: The config entry
             description: The entity description
+            coordinator_key: The coordinator key for device assignment
 
         """
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "isal Easy Homey",
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
+        self._attr_device_info = get_device_info(entry.entry_id, coordinator_key)
 
     @property
     def is_on(self) -> bool:
