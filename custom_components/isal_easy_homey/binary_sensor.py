@@ -18,6 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     COORDINATOR_POLLEN,
     COORDINATOR_WEATHER,
+    COORDINATOR_WATER_SOFTENER,
     DOMAIN,
     get_device_info,
 )
@@ -75,6 +76,15 @@ POLLEN_BINARY_SENSORS: tuple[IsalEasyHomeyBinarySensorEntityDescription, ...] = 
     ),
 )
 
+WATER_SOFTENER_BINARY_SENSORS: tuple[IsalEasyHomeyBinarySensorEntityDescription, ...] = (
+    IsalEasyHomeyBinarySensorEntityDescription(
+        key="water_softener_regenerating",
+        translation_key="water_softener_regenerating",
+        value_fn=lambda data: data.get("regeneration", {}).get("isRegenerating", False),
+        icon_fn=lambda is_on: "mdi:water-sync" if is_on else "mdi:water-sync-outline",
+    ),
+)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -116,6 +126,18 @@ async def async_setup_entry(
             COORDINATOR_POLLEN,
         )
         for description in POLLEN_BINARY_SENSORS
+    )
+
+    # Add water softener binary sensors
+    water_softener_coordinator = coordinators[COORDINATOR_WATER_SOFTENER]
+    entities.extend(
+        IsalEasyHomeyBinarySensor(
+            water_softener_coordinator,
+            entry,
+            description,
+            COORDINATOR_WATER_SOFTENER,
+        )
+        for description in WATER_SOFTENER_BINARY_SENSORS
     )
 
     async_add_entities(entities)

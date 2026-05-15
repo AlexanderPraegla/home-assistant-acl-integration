@@ -186,6 +186,113 @@
       },
       "service_uptime": {
         "name": "Homeassistant ACL Service Uptime"
+      },
+      "water_softener_device_status": {
+        "name": "Device Status",
+        "state": {
+          "ONLINE": "Online",
+          "OFFLINE": "Offline",
+          "UNKNOWN": "Unknown"
+        }
+      },
+      "water_softener_software_version": {
+        "name": "Software Version"
+      },
+      "water_softener_hardware_version": {
+        "name": "Hardware Version"
+      },
+      "water_softener_gateway_firmware": {
+        "name": "Connectivity Module Firmware Version"
+      },
+      "water_softener_gateway_hardware": {
+        "name": "Connectivity Module Hardware Version"
+      },
+      "water_softener_operating_time": {
+        "name": "Operating Hours"
+      },
+      "water_softener_uptime": {
+        "name": "Uptime"
+      },
+      "water_softener_raw_hardness": {
+        "name": "Raw Water Hardness"
+      },
+      "water_softener_desired_hardness": {
+        "name": "Desired Water Hardness"
+      },
+      "water_softener_battery_capacity": {
+        "name": "Emergency Battery Charge Level"
+      },
+      "water_softener_battery_remaining": {
+        "name": "Emergency Battery Remaining Time"
+      },
+      "water_softener_salt_level_percent": {
+        "name": "Remaining Salt Supply"
+      },
+      "water_softener_salt_level_kg": {
+        "name": "Current Salt Supply"
+      },
+      "water_softener_salt_range": {
+        "name": "Salt Range"
+      },
+      "water_softener_maintenance_days": {
+        "name": "Days Until Next Maintenance"
+      },
+      "water_softener_maintenance_registered": {
+        "name": "Registered Maintenances"
+      },
+      "water_softener_maintenance_requested": {
+        "name": "Requested Maintenances"
+      },
+      "water_softener_regeneration_count": {
+        "name": "Regeneration Count"
+      },
+      "water_softener_shutoff_valve": {
+        "name": "Shutoff Valve (Softener)",
+        "state": {
+          "OPEN": "Open",
+          "CLOSED": "Closed"
+        }
+      },
+      "water_softener_max_flow_rate": {
+        "name": "Max Flow Rate Per Hour"
+      },
+      "water_softener_max_extraction_volume": {
+        "name": "Max Extraction Volume"
+      },
+      "water_softener_max_extraction_time": {
+        "name": "Max Extraction Time"
+      },
+      "water_softener_micro_leakage_check": {
+        "name": "Micro Leakage Check",
+        "state": {
+          "IDLE": "Idle",
+          "RUNNING": "Running"
+        }
+      },
+      "water_softener_micro_leakage_status": {
+        "name": "Micro Leakage Status",
+        "state": {
+          "NO_LEAKAGE": "No Leakage",
+          "LEAKAGE_DETECTED": "Leakage Detected"
+        }
+      },
+      "water_softener_last_updated": {
+        "name": "Last Updated (Softener)"
+      },
+      "water_control_flow_rate": {
+        "name": "Current Flow Rate"
+      },
+      "water_control_total_consumption": {
+        "name": "Total Water Consumption"
+      },
+      "water_control_treated_consumption": {
+        "name": "Treated Water Consumption"
+      },
+      "water_control_untreated_consumption": {
+        "name": "Untreated Water Consumption"
+      },
+      "water_control_last_updated": {
+        "name": "Last Updated (Water Control)"
       }
     },
     "binary_sensor": {
@@ -197,6 +304,31 @@
       },
       "pollen_flight_active": {
         "name": "Pollen Flight Active"
+      },
+      "water_softener_regenerating": {
+        "name": "Regeneration Active"
+      }
+    },
+    "select": {
+      "water_softener_water_scene": {
+        "name": "Water Scene",
+        "state": {
+          "NORMAL": "Normal",
+          "SHOWER": "Shower",
+          "WATERING": "Garden Watering",
+          "HEATER": "Heater Filling",
+          "WASHING": "Washing"
+        }
+      }
+    },
+    "button": {
+      "water_softener_micro_leakage_start": {
+        "name": "Start Micro Leakage Check"
+      }
+    },
+    "switch": {
+      "water_control_shutoff_valve": {
+        "name": "Shutoff Valve"
       }
     }
   }

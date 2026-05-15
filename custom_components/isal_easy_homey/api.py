@@ -51,6 +51,7 @@ class IsalEasyHomeyApiClient:
         method: str,
         endpoint: str,
         params: dict[str, Any] | None = None,
+        json_body: dict[str, Any] | None = None,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """Make a request to the API.
 
@@ -79,10 +80,15 @@ class IsalEasyHomeyApiClient:
 
         try:
             async with asyncio.timeout(API_TIMEOUT):
+                request_kwargs = {
+                    "params": params,
+                }
+                if json_body is not None:
+                    request_kwargs["json"] = json_body
                 response = await self._session.request(
                     method,
                     url,
-                    params=params,
+                    **request_kwargs,
                 )
                 response.raise_for_status()
                 data = await response.json()
@@ -250,6 +256,65 @@ class IsalEasyHomeyApiClient:
 
         """
         return await self._request("GET", "/info")
+
+    # Water Softener endpoints
+
+    async def get_water_softener_data(self) -> dict[str, Any]:
+        """Get water softener data.
+
+        Returns:
+            Water softener data
+
+        """
+        return await self._request("GET", "/water/softener")
+
+    async def change_water_scene(self, water_scene: str) -> dict[str, Any]:
+        """Change the water scene.
+
+        Args:
+            water_scene: The water scene to set (NORMAL, SHOWER, WATERING, HEATER, WASHING)
+
+        Returns:
+            Response data
+
+        """
+        return await self._request(
+            "POST", "/water/softener/water-scene", json_body={"waterScene": water_scene}
+        )
+
+    async def start_micro_leakage_check(self) -> dict[str, Any]:
+        """Start a micro leakage check.
+
+        Returns:
+            Response data
+
+        """
+        return await self._request("POST", "/water/softener/micro-leakage-check")
+
+    # Water Control endpoints
+
+    async def get_water_control_data(self) -> dict[str, Any]:
+        """Get water control data.
+
+        Returns:
+            Water control data
+
+        """
+        return await self._request("GET", "/water/control")
+
+    async def control_shutoff_valve(self, new_status: str) -> dict[str, Any]:
+        """Control the shutoff valve.
+
+        Args:
+            new_status: The new valve status (OPEN, CLOSED)
+
+        Returns:
+            Response data
+
+        """
+        return await self._request(
+            "POST", "/water/control/shutoff-valve", json_body={"newStatus": new_status}
+        )
 
     async def test_connection(self) -> bool:
         """Test the connection to the API.

@@ -24,6 +24,8 @@ from .const import (
     COORDINATOR_WASTE,
     COORDINATOR_WEATHER,
     COORDINATOR_SERVICE_INFO,
+    COORDINATOR_WATER_SOFTENER,
+    COORDINATOR_WATER_CONTROL,
     DOMAIN,
     POLLEN_TYPES,
     WASTE_TYPES,
@@ -431,6 +433,286 @@ WEATHER_WARNING_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
 )
 
 
+def _battery_icon(percentage: float | None) -> str:
+    """Return battery icon based on percentage."""
+    if percentage is None:
+        return "mdi:battery-unknown"
+    if percentage <= 5:
+        return "mdi:battery-alert"
+    if percentage <= 15:
+        return "mdi:battery-10"
+    if percentage <= 25:
+        return "mdi:battery-20"
+    if percentage <= 35:
+        return "mdi:battery-30"
+    if percentage <= 45:
+        return "mdi:battery-40"
+    if percentage <= 55:
+        return "mdi:battery-50"
+    if percentage <= 65:
+        return "mdi:battery-60"
+    if percentage <= 75:
+        return "mdi:battery-70"
+    if percentage <= 85:
+        return "mdi:battery-80"
+    if percentage <= 95:
+        return "mdi:battery-90"
+    return "mdi:battery"
+
+
+def _salt_level_icon(percentage: float | None) -> str:
+    """Return salt level gauge icon based on percentage."""
+    if percentage is None:
+        return "mdi:gauge-empty"
+    if percentage < 25:
+        return "mdi:gauge-empty"
+    if percentage < 50:
+        return "mdi:gauge-low"
+    if percentage < 75:
+        return "mdi:gauge"
+    return "mdi:gauge-full"
+
+
+# Water Softener Sensors
+WATER_SOFTENER_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_device_status",
+        translation_key="water_softener_device_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["ONLINE", "OFFLINE", "UNKNOWN"],
+        icon_fn=lambda data: data.get("deviceStatusIcon", {}).get("mdiIcon", "mdi:information"),
+        value_fn=lambda data: data.get("deviceStatus"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_software_version",
+        translation_key="water_softener_software_version",
+        icon="mdi:tag",
+        value_fn=lambda data: data.get("softwareVersion"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_hardware_version",
+        translation_key="water_softener_hardware_version",
+        icon="mdi:tag",
+        value_fn=lambda data: data.get("hardwareVersion"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_gateway_firmware",
+        translation_key="water_softener_gateway_firmware",
+        icon="mdi:tag",
+        value_fn=lambda data: data.get("gatewayFirmwareVersion"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_gateway_hardware",
+        translation_key="water_softener_gateway_hardware",
+        icon="mdi:tag",
+        value_fn=lambda data: data.get("gatewayHardwareVersion"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_operating_time",
+        translation_key="water_softener_operating_time",
+        icon="mdi:clock-outline",
+        native_unit_of_measurement="h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: round(data.get("operatingTimeSeconds", 0) / 3600, 1) if data.get("operatingTimeSeconds") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_uptime",
+        translation_key="water_softener_uptime",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement="h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: round(data.get("uptimeSeconds", 0) / 3600, 1) if data.get("uptimeSeconds") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_raw_hardness",
+        translation_key="water_softener_raw_hardness",
+        icon="mdi:water",
+        native_unit_of_measurement="°dH",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("waterHardness", {}).get("rawHardnessDH"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_desired_hardness",
+        translation_key="water_softener_desired_hardness",
+        icon="mdi:water",
+        native_unit_of_measurement="°dH",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("waterHardness", {}).get("desiredHardnessDH"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_battery_capacity",
+        translation_key="water_softener_battery_capacity",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("batteryCapacity", {}).get("percentage"),
+        icon_fn=lambda data: _battery_icon(data.get("batteryCapacity", {}).get("percentage")),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_battery_remaining",
+        translation_key="water_softener_battery_remaining",
+        icon="mdi:battery-clock-outline",
+        native_unit_of_measurement="min",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: round(data.get("batteryCapacity", {}).get("remainingTimeSeconds", 0) / 60, 1) if data.get("batteryCapacity", {}).get("remainingTimeSeconds") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_salt_level_percent",
+        translation_key="water_softener_salt_level_percent",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("saltLevel", {}).get("saltLevelPercent"),
+        icon_fn=lambda data: _salt_level_icon(data.get("saltLevel", {}).get("saltLevelPercent")),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_salt_level_kg",
+        translation_key="water_softener_salt_level_kg",
+        icon="mdi:shaker-outline",
+        native_unit_of_measurement="kg",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: round(data.get("saltLevel", {}).get("saltLevelGrams", 0) / 1000, 2) if data.get("saltLevel", {}).get("saltLevelGrams") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_salt_range",
+        translation_key="water_softener_salt_range",
+        icon="mdi:chevron-triple-right",
+        native_unit_of_measurement="d",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("saltLevel", {}).get("saltRangeDays"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_maintenance_days",
+        translation_key="water_softener_maintenance_days",
+        icon="mdi:wrench-clock",
+        native_unit_of_measurement="d",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("maintenance", {}).get("daysUntilNext"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_maintenance_registered",
+        translation_key="water_softener_maintenance_registered",
+        icon="mdi:account-wrench",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("maintenance", {}).get("registeredMaintenances"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_maintenance_requested",
+        translation_key="water_softener_maintenance_requested",
+        icon="mdi:cog-counterclockwise",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("maintenance", {}).get("requestedMaintenances"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_regeneration_count",
+        translation_key="water_softener_regeneration_count",
+        icon="mdi:counter",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda data: data.get("regeneration", {}).get("totalRegenerationCount"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_shutoff_valve",
+        translation_key="water_softener_shutoff_valve",
+        device_class=SensorDeviceClass.ENUM,
+        options=["OPEN", "CLOSED"],
+        icon_fn=lambda data: data.get("leakageProtection", {}).get("shutoffValveIcon", {}).get("mdiIcon", "mdi:valve"),
+        value_fn=lambda data: data.get("leakageProtection", {}).get("shutoffValveStatus"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_max_flow_rate",
+        translation_key="water_softener_max_flow_rate",
+        icon="mdi:waves-arrow-up",
+        native_unit_of_measurement="L/h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("leakageProtection", {}).get("maxFlowRateLiterPerHour"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_max_extraction_volume",
+        translation_key="water_softener_max_extraction_volume",
+        icon="mdi:cup-water",
+        native_unit_of_measurement="L",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("leakageProtection", {}).get("maxExtractionVolumeLiter"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_max_extraction_time",
+        translation_key="water_softener_max_extraction_time",
+        icon="mdi:clock-end",
+        native_unit_of_measurement="h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: round(data.get("leakageProtection", {}).get("maxExtractionTimeMinutes", 0) / 60, 1) if data.get("leakageProtection", {}).get("maxExtractionTimeMinutes") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_micro_leakage_check",
+        translation_key="water_softener_micro_leakage_check",
+        device_class=SensorDeviceClass.ENUM,
+        options=["IDLE", "RUNNING"],
+        icon="mdi:pipe-leak",
+        value_fn=lambda data: data.get("leakageProtection", {}).get("microLeakageCheck"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_micro_leakage_status",
+        translation_key="water_softener_micro_leakage_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["NO_LEAKAGE", "LEAKAGE_DETECTED"],
+        icon="mdi:pipe-leak",
+        value_fn=lambda data: data.get("leakageProtection", {}).get("microLeakageStatus"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_softener_last_updated",
+        translation_key="water_softener_last_updated",
+        icon="mdi:update",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda data: datetime.fromisoformat(data["lastUpdatedOn"]) if data.get("lastUpdatedOn") else None,
+    ),
+)
+
+
+# Water Control Sensors
+WATER_CONTROL_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
+    IsalEasyHomeySensorEntityDescription(
+        key="water_control_flow_rate",
+        translation_key="water_control_flow_rate",
+        icon="mdi:waves-arrow-right",
+        native_unit_of_measurement="L/h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("currentFlowRate"),
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_control_total_consumption",
+        translation_key="water_control_total_consumption",
+        icon="mdi:water",
+        native_unit_of_measurement="m³",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda data: round(data.get("totalWaterConsumption", 0) / 1000, 3) if data.get("totalWaterConsumption") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_control_treated_consumption",
+        translation_key="water_control_treated_consumption",
+        icon="mdi:water-check",
+        native_unit_of_measurement="m³",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda data: round(data.get("treatedWaterConsumption", 0) / 1000, 3) if data.get("treatedWaterConsumption") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_control_untreated_consumption",
+        translation_key="water_control_untreated_consumption",
+        icon="mdi:water-alert",
+        native_unit_of_measurement="m³",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda data: round(data.get("untreatedWaterConsumption", 0) / 1000, 3) if data.get("untreatedWaterConsumption") is not None else None,
+    ),
+    IsalEasyHomeySensorEntityDescription(
+        key="water_control_last_updated",
+        translation_key="water_control_last_updated",
+        icon="mdi:update",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda data: datetime.fromisoformat(data["lastUpdatedOn"]) if data.get("lastUpdatedOn") else None,
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -558,6 +840,30 @@ async def async_setup_entry(
             service_info_coordinator,
             entry,
         )
+    )
+
+    # Add water softener sensors
+    water_softener_coordinator = coordinators[COORDINATOR_WATER_SOFTENER]
+    entities.extend(
+        IsalEasyHomeySensor(
+            water_softener_coordinator,
+            entry,
+            description,
+            COORDINATOR_WATER_SOFTENER,
+        )
+        for description in WATER_SOFTENER_SENSORS
+    )
+
+    # Add water control sensors
+    water_control_coordinator = coordinators[COORDINATOR_WATER_CONTROL]
+    entities.extend(
+        IsalEasyHomeySensor(
+            water_control_coordinator,
+            entry,
+            description,
+            COORDINATOR_WATER_CONTROL,
+        )
+        for description in WATER_CONTROL_SENSORS
     )
 
     async_add_entities(entities)

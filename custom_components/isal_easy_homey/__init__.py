@@ -25,12 +25,16 @@ from .const import (
     CONF_UPDATE_INTERVAL_WASTE,
     CONF_UPDATE_INTERVAL_WEATHER,
     CONF_UPDATE_INTERVAL_SERVICE_INFO,
+    CONF_UPDATE_INTERVAL_WATER_SOFTENER,
+    CONF_UPDATE_INTERVAL_WATER_CONTROL,
     CONF_WARNING_CELL_ID,
     COORDINATOR_PETROL,
     COORDINATOR_POLLEN,
     COORDINATOR_WASTE,
     COORDINATOR_WEATHER,
     COORDINATOR_SERVICE_INFO,
+    COORDINATOR_WATER_SOFTENER,
+    COORDINATOR_WATER_CONTROL,
     DEFAULT_PETROL_TYPE,
     DEFAULT_SEARCH_RADIUS,
     DEFAULT_UPDATE_INTERVAL_PETROL,
@@ -38,6 +42,8 @@ from .const import (
     DEFAULT_UPDATE_INTERVAL_WASTE,
     DEFAULT_UPDATE_INTERVAL_WEATHER,
     DEFAULT_UPDATE_INTERVAL_SERVICE_INFO,
+    DEFAULT_UPDATE_INTERVAL_WATER_SOFTENER,
+    DEFAULT_UPDATE_INTERVAL_WATER_CONTROL,
     DEFAULT_WARNING_CELL_ID,
     DOMAIN,
 )
@@ -47,11 +53,19 @@ from .coordinator import (
     WasteCollectionCoordinator,
     WeatherWarningCoordinator,
     ServiceInfoCoordinator,
+    WaterSoftenerCoordinator,
+    WaterControlCoordinator,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.SELECT,
+    Platform.BUTTON,
+    Platform.SWITCH,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -105,6 +119,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     update_interval_service_info = entry.options.get(
         CONF_UPDATE_INTERVAL_SERVICE_INFO, DEFAULT_UPDATE_INTERVAL_SERVICE_INFO
     )
+    update_interval_water_softener = entry.options.get(
+        CONF_UPDATE_INTERVAL_WATER_SOFTENER, DEFAULT_UPDATE_INTERVAL_WATER_SOFTENER
+    )
+    update_interval_water_control = entry.options.get(
+        CONF_UPDATE_INTERVAL_WATER_CONTROL, DEFAULT_UPDATE_INTERVAL_WATER_CONTROL
+    )
 
     # Create coordinators
     coordinators = {
@@ -142,6 +162,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             hass,
             client,
             timedelta(minutes=update_interval_service_info),
+            entry,
+        ),
+        COORDINATOR_WATER_SOFTENER: WaterSoftenerCoordinator(
+            hass,
+            client,
+            timedelta(seconds=update_interval_water_softener),
+            entry,
+        ),
+        COORDINATOR_WATER_CONTROL: WaterControlCoordinator(
+            hass,
+            client,
+            timedelta(seconds=update_interval_water_control),
             entry,
         ),
     }

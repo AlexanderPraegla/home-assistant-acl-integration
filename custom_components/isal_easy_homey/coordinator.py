@@ -395,3 +395,57 @@ class ServiceInfoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
 
+class WaterSoftenerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator for water softener data."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: IsalEasyHomeyApiClient,
+        update_interval: timedelta,
+        config_entry,
+    ) -> None:
+        """Initialize the coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_water_softener",
+            update_interval=update_interval,
+            config_entry=config_entry,
+        )
+        self.client = client
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Fetch data from API."""
+        try:
+            return await self.client.get_water_softener_data()
+        except IsalEasyHomeyApiError as err:
+            raise UpdateFailed(f"Error communicating with API: {err}") from err
+
+
+class WaterControlCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator for water control data."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: IsalEasyHomeyApiClient,
+        update_interval: timedelta,
+        config_entry,
+    ) -> None:
+        """Initialize the coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_water_control",
+            update_interval=update_interval,
+            config_entry=config_entry,
+        )
+        self.client = client
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Fetch data from API."""
+        try:
+            return await self.client.get_water_control_data()
+        except IsalEasyHomeyApiError as err:
+            raise UpdateFailed(f"Error communicating with API: {err}") from err
