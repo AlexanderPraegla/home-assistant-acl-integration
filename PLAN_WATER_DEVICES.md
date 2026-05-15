@@ -9,46 +9,36 @@ Zwei neue Devices (**Wasserentkalkungsanlage** mit 28 Entitäten, **Wasserkontro
 ### Device 1: Wasserentkalkungsanlage (Water Softener)
 Datenquelle: `GET /water/softener` (operationId: `getWaterSoftenerData`)
 
-| # | Entität (DE) | Key | JSON-Pfad | Typ | Einheit | Umrechnung | Icon | Plattform | Steuerbar? |
-|---|-------------|-----|-----------|-----|---------|------------|------|-----------|-----------|
-| 1 | Gerätestatus | `water_softener_device_status` | `deviceStatus` | string | - | - | dynamisch aus `deviceStatusIcon.mdiIcon` | sensor | nein |
-| 2 | Software Version | `water_softener_software_version` | `softwareVersion` | string | - | - | `mdi:tag` | sensor | nein |
-| 3 | Hardware Version | `water_softener_hardware_version` | `hardwareVersion` | string | - | - | `mdi:tag` | sensor | nein |
-| 4 | Connectivity Module Firmware Version | `water_softener_gateway_firmware` | `gatewayFirmwareVersion` | string | - | - | `mdi:tag` | sensor | nein |
-| 5 | Connectivity Module Hardware Version | `water_softener_gateway_hardware` | `gatewayHardwareVersion` | string | - | - | `mdi:tag` | sensor | nein |
-| 6 | Betriebsstunden | `water_softener_operating_time` | `operatingTimeSeconds` | number | h | Sek → Std (/3600) | `mdi:clock-outline` | sensor | nein |
-| 7 | Uptime | `water_softener_uptime` | `uptimeSeconds` | number | h | Sek → Std (/3600) | `mdi:timer-outline` | sensor | nein |
-| 8 | Wasserszene | `water_softener_water_scene` | `waterScene` | enum | - | - | dynamisch (s.u.) | **select** | **JA** → `POST changeWaterScene` |
-| 9 | Rohwasserhärte | `water_softener_raw_hardness` | `waterHardness.rawHardnessDH` | number | °dH | - | `mdi:water` | sensor | nein |
-| 10 | Wunschwasserhärte | `water_softener_desired_hardness` | `waterHardness.desiredHardnessDH` | number | °dH | - | `mdi:water` | sensor | nein |
-| 11 | Notstrom Batterie Ladestand | `water_softener_battery_capacity` | `batteryCapacity.percentage` | number | % | - | dynamisch `mdi:battery-XX` | sensor | nein |
-| 12 | Notstrom Batterie Restlaufzeit | `water_softener_battery_remaining` | `batteryCapacity.remainingTimeSeconds` | number | min | Sek → Min (/60) | `mdi:battery-clock-outline` | sensor | nein |
-| 13 | Verbleibender Salzvorrat | `water_softener_salt_level_percent` | `saltLevel.saltLevelPercent` | number | % | - | dynamisch gauge-Icons | sensor | nein |
-| 14 | Aktueller Salzvorrat | `water_softener_salt_level_kg` | `saltLevel.saltLevelGrams` | number | kg | g → kg (/1000) | `mdi:shaker-outline` | sensor | nein |
-| 15 | Salzreichweite | `water_softener_salt_range` | `saltLevel.saltRangeDays` | number | d | - | `mdi:chevron-triple-right` | sensor | nein |
-| 16 | Tage bis zur nächsten Wartung | `water_softener_maintenance_days` | `maintenance.daysUntilNext` | number | d | - | `mdi:wrench-clock` | sensor | nein |
-| 17 | Durchgeführte Wartungen | `water_softener_maintenance_registered` | `maintenance.registeredMaintenances` | number | - | - | `mdi:account-wrench` | sensor | nein |
-| 18 | Angeforderte Wartungen | `water_softener_maintenance_requested` | `maintenance.requestedMaintenances` | number | - | - | `mdi:cog-counterclockwise` | sensor | nein |
-| 19 | Regenerationsstatus | `water_softener_regenerating` | `regeneration.isRegenerating` | bool | - | - | `mdi:water-sync` | **binary_sensor** | nein |
-| 20 | Anzahl Regenerationen | `water_softener_regeneration_count` | `regeneration.totalRegenerationCount` | number | - | - | `mdi:counter` | sensor | nein |
-| 21 | Absperrventil (Softener) | `water_softener_shutoff_valve` | `leakageProtection.shutoffValveStatus` | string | - | - | dynamisch aus `leakageProtection.shutoffValveIcon.mdiIcon` | sensor | nein (nur lesend!) |
-| 22 | Max. Durchfluss pro Stunde | `water_softener_max_flow_rate` | `leakageProtection.maxFlowRateLiterPerHour` | number | L/h | - | `mdi:waves-arrow-up` | sensor | nein |
-| 23 | Max. Entnahmemenge | `water_softener_max_extraction_volume` | `leakageProtection.maxExtractionVolumeLiter` | number | L | - | `mdi:cup-water` | sensor | nein |
-| 24 | Max. Entnahmezeit | `water_softener_max_extraction_time` | `leakageProtection.maxExtractionTimeMinutes` | number | h | Min → Std (/60) | `mdi:clock-end` | sensor | nein |
-| 25 | Kleinleckageprüfung | `water_softener_micro_leakage_check` | `leakageProtection.microLeakageCheck` | string | - | - | `mdi:pipe-leak` | sensor | nein |
-| 26 | Kleinleckageprüfung starten | `water_softener_micro_leakage_start` | - (Button) | - | - | - | `mdi:clock-start` | **button** | **JA** → `POST startMicroLeakageCheck` |
-| 27 | Kleinleckage Status | `water_softener_micro_leakage_status` | `leakageProtection.microLeakageStatus` | string | - | - | `mdi:pipe-leak` | sensor | nein |
-| 28 | Letzte Aktualisierung | `water_softener_last_updated` | `lastUpdatedOn` | datetime | - | ISO 8601 → datetime | `mdi:update` | sensor (TIMESTAMP) | nein |
-
-**Wasserszene Dropdown-Optionen:**
-
-| Key | Bezeichnung (DE) | Icon |
-|-----|-----------------|------|
-| NORMAL | Normalbetrieb | `mdi:faucet` |
-| SHOWER | Duschen | `mdi:shower` |
-| WATERING | Gartenbewässerung | `mdi:watering-can-outline` |
-| HEATER | Heizungsbefüllung | `mdi:water-boiler` |
-| WASHING | Waschen | `mdi:washing-machine` |
+| #  | Entität (DE)                         | Key                                     | JSON-Pfad                                    | Typ      | Einheit | Umrechnung          | Icon                                                       | Plattform          | Steuerbar?                             |
+|----|--------------------------------------|-----------------------------------------|----------------------------------------------|----------|---------|---------------------|------------------------------------------------------------|--------------------|----------------------------------------|
+| 1  | Gerätestatus                         | `water_softener_device_status`          | `deviceStatus`                               | string   | -       | -                   | dynamisch aus `deviceStatusIcon.mdiIcon`                   | sensor             | nein                                   |
+| 2  | Software Version                     | `water_softener_software_version`       | `softwareVersion`                            | string   | -       | -                   | `mdi:tag`                                                  | sensor             | nein                                   |
+| 3  | Hardware Version                     | `water_softener_hardware_version`       | `hardwareVersion`                            | string   | -       | -                   | `mdi:tag`                                                  | sensor             | nein                                   |
+| 4  | Connectivity Module Firmware Version | `water_softener_gateway_firmware`       | `gatewayFirmwareVersion`                     | string   | -       | -                   | `mdi:tag`                                                  | sensor             | nein                                   |
+| 5  | Connectivity Module Hardware Version | `water_softener_gateway_hardware`       | `gatewayHardwareVersion`                     | string   | -       | -                   | `mdi:tag`                                                  | sensor             | nein                                   |
+| 6  | Betriebsstunden                      | `water_softener_operating_time`         | `operatingTimeSeconds`                       | number   | h       | Sek → Std (/3600)   | `mdi:clock-outline`                                        | sensor             | nein                                   |
+| 7  | Uptime                               | `water_softener_uptime`                 | `uptimeSeconds`                              | number   | h       | Sek → Std (/3600)   | `mdi:timer-outline`                                        | sensor             | nein                                   |
+| 8  | Wasserszene                          | `water_softener_water_scene`            | `waterScene`                                 | enum     | -       | -                   | dynamisch aus `waterSceneIcon`                             | **select**         | **JA** → `POST changeWaterScene`       |
+| 9  | Rohwasserhärte                       | `water_softener_raw_hardness`           | `waterHardness.rawHardnessDH`                | number   | °dH     | -                   | `mdi:water`                                                | sensor             | nein                                   |
+| 10 | Wunschwasserhärte                    | `water_softener_desired_hardness`       | `waterHardness.desiredHardnessDH`            | number   | °dH     | -                   | `mdi:water`                                                | sensor             | nein                                   |
+| 11 | Notstrom Batterie Ladestand          | `water_softener_battery_capacity`       | `batteryCapacity.percentage`                 | number   | %       | -                   | dynamisch `mdi:battery-XX`                                 | sensor             | nein                                   |
+| 12 | Notstrom Batterie Restlaufzeit       | `water_softener_battery_remaining`      | `batteryCapacity.remainingTimeSeconds`       | number   | min     | Sek → Min (/60)     | `mdi:battery-clock-outline`                                | sensor             | nein                                   |
+| 13 | Verbleibender Salzvorrat             | `water_softener_salt_level_percent`     | `saltLevel.saltLevelPercent`                 | number   | %       | -                   | dynamisch gauge-Icons                                      | sensor             | nein                                   |
+| 14 | Aktueller Salzvorrat                 | `water_softener_salt_level_kg`          | `saltLevel.saltLevelGrams`                   | number   | kg      | g → kg (/1000)      | `mdi:shaker-outline`                                       | sensor             | nein                                   |
+| 15 | Salzreichweite                       | `water_softener_salt_range`             | `saltLevel.saltRangeDays`                    | number   | d       | -                   | `mdi:chevron-triple-right`                                 | sensor             | nein                                   |
+| 16 | Tage bis zur nächsten Wartung        | `water_softener_maintenance_days`       | `maintenance.daysUntilNext`                  | number   | d       | -                   | `mdi:wrench-clock`                                         | sensor             | nein                                   |
+| 17 | Durchgeführte Wartungen              | `water_softener_maintenance_registered` | `maintenance.registeredMaintenances`         | number   | -       | -                   | `mdi:account-wrench`                                       | sensor             | nein                                   |
+| 18 | Angeforderte Wartungen               | `water_softener_maintenance_requested`  | `maintenance.requestedMaintenances`          | number   | -       | -                   | `mdi:cog-counterclockwise`                                 | sensor             | nein                                   |
+| 19 | Regenerationsstatus                  | `water_softener_regenerating`           | `regeneration.isRegenerating`                | bool     | -       | -                   | `mdi:water-sync`                                           | **binary_sensor**  | nein                                   |
+| 20 | Anzahl Regenerationen                | `water_softener_regeneration_count`     | `regeneration.totalRegenerationCount`        | number   | -       | -                   | `mdi:counter`                                              | sensor             | nein                                   |
+| 21 | Absperrventil (Softener)             | `water_softener_shutoff_valve`          | `leakageProtection.shutoffValveStatus`       | string   | -       | -                   | dynamisch aus `leakageProtection.shutoffValveIcon.mdiIcon` | sensor             | nein (nur lesend!)                     |
+| 22 | Max. Durchfluss pro Stunde           | `water_softener_max_flow_rate`          | `leakageProtection.maxFlowRateLiterPerHour`  | number   | L/h     | -                   | `mdi:waves-arrow-up`                                       | sensor             | nein                                   |
+| 23 | Max. Entnahmemenge                   | `water_softener_max_extraction_volume`  | `leakageProtection.maxExtractionVolumeLiter` | number   | L       | -                   | `mdi:cup-water`                                            | sensor             | nein                                   |
+| 24 | Max. Entnahmezeit                    | `water_softener_max_extraction_time`    | `leakageProtection.maxExtractionTimeMinutes` | number   | h       | Min → Std (/60)     | `mdi:clock-end`                                            | sensor             | nein                                   |
+| 25 | Kleinleckageprüfung                  | `water_softener_micro_leakage_check`    | `leakageProtection.microLeakageCheck`        | string   | -       | -                   | `mdi:pipe-leak`                                            | sensor             | nein                                   |
+| 26 | Kleinleckageprüfung starten          | `water_softener_micro_leakage_start`    | - (Button)                                   | -        | -       | -                   | `mdi:clock-start`                                          | **button**         | **JA** → `POST startMicroLeakageCheck` |
+| 27 | Kleinleckage Status                  | `water_softener_micro_leakage_status`   | `leakageProtection.microLeakageStatus`       | string   | -       | -                   | `mdi:pipe-leak`                                            | sensor             | nein                                   |
+| 28 | Letzte Aktualisierung                | `water_softener_last_updated`           | `lastUpdatedOn`                              | datetime | -       | ISO 8601 → datetime | `mdi:update`                                               | sensor (TIMESTAMP) | nein                                   |
 
 ### Device 2: Wasserkontrolle (Water Control)
 Datenquelle: `GET /water/control` (operationId: `getWaterControlStatus`)
