@@ -673,6 +673,7 @@ WATER_CONTROL_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
         translation_key="water_control_flow_rate",
         icon="mdi:waves-arrow-right",
         native_unit_of_measurement="L/h",
+        device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("currentFlowRate"),
     ),
