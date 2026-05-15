@@ -28,7 +28,7 @@ Datenquelle: `GET /water/softener` (operationId: `getWaterSoftenerData`)
 | 15 | Salzreichweite | `water_softener_salt_range` | `saltLevel.saltRangeDays` | number | d | - | `mdi:chevron-triple-right` | sensor | nein |
 | 16 | Tage bis zur nächsten Wartung | `water_softener_maintenance_days` | `maintenance.daysUntilNext` | number | d | - | `mdi:wrench-clock` | sensor | nein |
 | 17 | Durchgeführte Wartungen | `water_softener_maintenance_registered` | `maintenance.registeredMaintenances` | number | - | - | `mdi:account-wrench` | sensor | nein |
-| 18 | Angeforderte Wartungen | `water_softener_maintenance_requested` | `maintenance.requestedMaintenances` | number | - | - | `mdi:wrench-cog-outline` | sensor | nein |
+| 18 | Angeforderte Wartungen | `water_softener_maintenance_requested` | `maintenance.requestedMaintenances` | number | - | - | `mdi:cog-counterclockwise` | sensor | nein |
 | 19 | Regenerationsstatus | `water_softener_regenerating` | `regeneration.isRegenerating` | bool | - | - | `mdi:water-sync` | **binary_sensor** | nein |
 | 20 | Anzahl Regenerationen | `water_softener_regeneration_count` | `regeneration.totalRegenerationCount` | number | - | - | `mdi:counter` | sensor | nein |
 | 21 | Absperrventil (Softener) | `water_softener_shutoff_valve` | `leakageProtection.shutoffValveStatus` | string | - | - | dynamisch aus `leakageProtection.shutoffValveIcon.mdiIcon` | sensor | nein (nur lesend!) |
