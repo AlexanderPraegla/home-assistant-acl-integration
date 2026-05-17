@@ -542,6 +542,7 @@ WATER_SOFTENER_SENSORS: tuple[IsalEasyHomeySensorEntityDescription, ...] = (
     IsalEasyHomeySensorEntityDescription(
         key="water_softener_battery_capacity",
         translation_key="water_softener_battery_capacity",
+        device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement="%",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("batteryCapacity", {}).get("percentage"),
